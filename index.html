@@ -21,6 +21,9 @@
     .warn { color: #7a5200; }
     .error { color: #b00020; }
     .pill { display: inline-block; padding: 2px 8px; border: 1px solid #ddd; border-radius: 999px; font-size: 12px; color: #555; margin-left: 8px; }
+    .loading { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #444; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #ddd; border-top-color: #444; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -42,6 +45,10 @@
     </select>
 
     <span class="meta" id="count">Loading…</span>
+    <span id="loading" class="loading" aria-live="polite">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Loading…</span>
+    </span>
   </div>
 
   <div id="status" class="meta"></div>
@@ -52,6 +59,7 @@
     const sortBy = document.getElementById("sortBy");
     const sortDir = document.getElementById("sortDir");
     const count = document.getElementById("count");
+    const loading = document.getElementById("loading");
     const status = document.getElementById("status");
     const groupsDiv = document.getElementById("groups");
 
@@ -134,6 +142,7 @@
     }
 
     async function loadXML() {
+      showLoading();
       try {
         const res = await fetch("airports.xml", { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status} loading airports.xml`);
@@ -152,6 +161,7 @@
         })).filter(a => a.code && a.name);
 
         status.textContent = "";
+        hideLoading();
         render();
       } catch (e) {
         status.className = "meta error";
@@ -159,10 +169,26 @@
           "Failed to load airports.xml. If you opened this via file://, use a local web server or host it.";
         console.error(e);
         count.textContent = "0 / 0 shown";
+        hideLoading();
       }
     }
 
+    function showLoading() {
+      if (loading) loading.style.display = "inline-flex";
+      search.disabled = true;
+      sortBy.disabled = true;
+      sortDir.disabled = true;
+    }
+
+    function hideLoading() {
+      if (loading) loading.style.display = "none";
+      search.disabled = false;
+      sortBy.disabled = false;
+      sortDir.disabled = false;
+    }
+
     [search, sortBy, sortDir].forEach(el => el.addEventListener("input", render));
+    // Start with loading visible while we fetch data
     loadXML();
   </script>
 </body>
