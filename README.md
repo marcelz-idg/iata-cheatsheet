@@ -60,3 +60,16 @@ Logical grouping (e.g. UK, Channel Islands, Legacy & placeholders)
 * **note (optional)**
 Any additional context, warnings, or legacy information
 
+---
+
+**Schema and validation**
+
+- **Schema file:** `airports.xsd` (added to the project root). It declares the allowed child elements for each `<airport>` and a basic pattern for `code` values.
+- **Usage:** Editors that support XML schema will pick up `airports.xsd` automatically because `airports.xml` references it. To validate from the command line you can use `xmllint`:
+
+```bash
+xmllint --noout --schema airports.xsd airports.xml
+```
+
+If no output is produced, the document is valid; errors will be printed otherwise.
+

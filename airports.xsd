@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <!--
+    Schema for airports.xml
+    - Root element: <airports>
+    - Repeating <airport> elements with children:
+      - <code> (string, typically IATA-ish, uppercase letters/digits/spaces)
+      - <name> (string)
+      - <group> (string, optional)
+      - <note> (string, optional)
+  -->
+
+  <xs:element name="airports">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="airport" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="code" type="codeType"/>
+              <xs:element name="name" type="xs:string"/>
+              <xs:element name="group" type="xs:string" minOccurs="0"/>
+              <xs:element name="note" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Allow typical IATA codes (3 letters) but also accommodate legacy placeholders
+       like "LPL OLD" or longer non-standard codes found in the file. -->
+  <xs:simpleType name="codeType">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="10"/>
+      <xs:pattern value="[A-Z0-9 ]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
