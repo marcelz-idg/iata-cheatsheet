@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IATA Airport Codes Cheat Sheet</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    h1 { margin: 0 0 8px; }
+    .sub { color: #555; margin: 0 0 16px; }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+    input, select { padding: 8px 10px; }
+    input { min-width: 280px; }
+    .meta { color: #666; font-size: 13px; }
+    .group { margin-top: 18px; border-top: 1px solid #eee; padding-top: 14px; }
+    .group h2 { margin: 0 0 8px; font-size: 18px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+    th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+    th { background: #f6f6f6; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .warn { color: #7a5200; }
+    .error { color: #b00020; }
+    .pill { display: inline-block; padding: 2px 8px; border: 1px solid #ddd; border-radius: 999px; font-size: 12px; color: #555; margin-left: 8px; }
+  </style>
+</head>
+<body>
+  <h1>IATA Airport Codes Cheat Sheet</h1>
+  <p class="sub">Loads data from <code>airports.xml</code>. Search, sort, and browse by group.</p>
+
+  <div class="row">
+    <input id="search" type="search" placeholder="Search (e.g., LHR, London, Stansted)..." />
+
+    <label class="meta" for="sortBy">Sort:</label>
+    <select id="sortBy">
+      <option value="code">Code</option>
+      <option value="name">Airport</option>
+      <option value="group">Group</option>
+    </select>
+
+    <select id="sortDir">
+      <option value="asc">Ascending</option>
+      <option value="desc">Descending</option>
+    </select>
+
+    <span class="meta" id="count">Loading…</span>
+  </div>
+
+  <div id="status" class="meta"></div>
+  <div id="groups"></div>
+
+  <script>
+    const search = document.getElementById("search");
+    const sortBy = document.getElementById("sortBy");
+    const sortDir = document.getElementById("sortDir");
+    const count = document.getElementById("count");
+    const status = document.getElementById("status");
+    const groupsDiv = document.getElementById("groups");
+
+    let airports = [];
+
+    function esc(s) {
+      return String(s ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function cmp(a, b) {
+      const key = sortBy.value;
+      const dir = sortDir.value === "desc" ? -1 : 1;
+      const av = (a[key] || "").toString().toLowerCase();
+      const bv = (b[key] || "").toString().toLowerCase();
+      if (av < bv) return -1 * dir;
+      if (av > bv) return  1 * dir;
+      // Tie-breaker: code asc
+      return (a.code || "").toLowerCase().localeCompare((b.code || "").toLowerCase());
+    }
+
+    function groupBy(list) {
+      const map = new Map();
+      for (const a of list) {
+        const g = a.group || "Ungrouped";
+        if (!map.has(g)) map.set(g, []);
+        map.get(g).push(a);
+      }
+      return map;
+    }
+
+    function render() {
+      const q = search.value.trim().toLowerCase();
+
+      const filtered = !q ? airports : airports.filter(a =>
+        a.code.toLowerCase().includes(q) ||
+        a.name.toLowerCase().includes(q) ||
+        (a.group || "").toLowerCase().includes(q) ||
+        (a.note || "").toLowerCase().includes(q)
+      );
+
+      const sorted = [...filtered].sort(cmp);
+      const grouped = groupBy(sorted);
+
+      // Sort groups (alphabetical) unless user is sorting by group desc/asc; then keep group order as a function of data.
+      const groupNames = Array.from(grouped.keys()).sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+      groupsDiv.innerHTML = groupNames.map(g => {
+        const items = grouped.get(g);
+        return `
+          <section class="group">
+            <h2>${esc(g)} <span class="pill">${items.length}</span></h2>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:160px;">Code</th>
+                  <th>Airport</th>
+                  <th style="width:260px;">Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${items.map(a => `
+                  <tr>
+                    <td><code>${esc(a.code)}</code></td>
+                    <td>${esc(a.name)}</td>
+                    <td class="${a.note ? "warn" : ""}">${esc(a.note || "")}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </section>
+        `;
+      }).join("");
+
+      count.textContent = `${filtered.length} / ${airports.length} shown`;
+    }
+
+    async function loadXML() {
+      try {
+        const res = await fetch("airports.xml", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status} loading airports.xml`);
+
+        const text = await res.text();
+        const doc = new DOMParser().parseFromString(text, "application/xml");
+
+        const parserError = doc.querySelector("parsererror");
+        if (parserError) throw new Error("XML parse error: airports.xml appears malformed.");
+
+        airports = Array.from(doc.querySelectorAll("airport")).map(node => ({
+          code: (node.querySelector("code")?.textContent || "").trim(),
+          name: (node.querySelector("name")?.textContent || "").trim(),
+          group: (node.querySelector("group")?.textContent || "").trim() || "Ungrouped",
+          note: (node.querySelector("note")?.textContent || "").trim()
+        })).filter(a => a.code && a.name);
+
+        status.textContent = "";
+        render();
+      } catch (e) {
+        status.className = "meta error";
+        status.textContent =
+          "Failed to load airports.xml. If you opened this via file://, use a local web server or host it.";
+        console.error(e);
+        count.textContent = "0 / 0 shown";
+      }
+    }
+
+    [search, sortBy, sortDir].forEach(el => el.addEventListener("input", render));
+    loadXML();
+  </script>
+</body>
+</html>
