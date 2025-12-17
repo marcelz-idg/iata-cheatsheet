@@ -13,7 +13,7 @@
   <airport>
     <code>BAG</code>
     <name>Bagshot Intercontinental Airport</name>
-    <group>Legacy & placeholders</group>
+    <group>Legacy placeholders</group>
     <note>Code/name may be non-standard</note>
   </airport>
   <airport>
@@ -105,7 +105,7 @@
   <airport>
     <code>LPL OLD</code>
     <name>Liverpool John Lennon Airport OLD</name>
-    <group>Legacy & placeholders</group>
+    <group>Legacy placeholders</group>
     <note>Non-IATA format (contains space)</note>
   </airport>
   <airport>
@@ -151,19 +151,19 @@
   <airport>
     <code>XXXX</code>
     <name>Old East Midlands Airprot</name>
-    <group>Legacy & placeholders</group>
+    <group>Legacy placeholders</group>
     <note>Likely placeholder / non-IATA</note>
   </airport>
   <airport>
     <code>XLCY</code>
     <name>Old London City Airport</name>
-    <group>Legacy & placeholders</group>
+    <group>Legacy placeholders</group>
     <note>Likely placeholder / non-IATA</note>
   </airport>
   <airport>
     <code>XXX</code>
     <name>Old Stansted</name>
-    <group>Legacy & placeholders</group>
+    <group>Legacy placeholders</group>
     <note>Likely placeholder / non-IATA</note>
   </airport>
   <airport>
