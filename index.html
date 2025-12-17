@@ -1,31 +1,123 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>IATA Airport Codes Cheat Sheet</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 24px; }
-    h1 { margin: 0 0 8px; }
-    .sub { color: #555; margin: 0 0 16px; }
-    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
-    input, select { padding: 8px 10px; }
-    input { min-width: 280px; }
-    .meta { color: #666; font-size: 13px; }
-    .group { margin-top: 18px; border-top: 1px solid #eee; padding-top: 14px; }
-    .group h2 { margin: 0 0 8px; font-size: 18px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 8px; }
-    th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
-    th { background: #f6f6f6; }
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    .warn { color: #7a5200; }
-    .error { color: #b00020; }
-    .pill { display: inline-block; padding: 2px 8px; border: 1px solid #ddd; border-radius: 999px; font-size: 12px; color: #555; margin-left: 8px; }
-    .loading { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #444; }
-    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #ddd; border-top-color: #444; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+    }
+
+    .sub {
+      color: #555;
+      margin: 0 0 16px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    input,
+    select {
+      padding: 8px 10px;
+    }
+
+    input {
+      min-width: 280px;
+    }
+
+    .meta {
+      color: #666;
+      font-size: 13px;
+    }
+
+    .group {
+      margin-top: 18px;
+      border-top: 1px solid #eee;
+      padding-top: 14px;
+    }
+
+    .group h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #f6f6f6;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .warn {
+      color: #7a5200;
+    }
+
+    .error {
+      color: #b00020;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #555;
+      margin-left: 8px;
+    }
+
+    .loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #444;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #ddd;
+      border-top-color: #444;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
+
 <body>
   <h1>IATA Airport Codes Cheat Sheet</h1>
   <p class="sub">Loads data from <code>airports.xml</code>. Search, sort, and browse by group.</p>
@@ -44,10 +136,11 @@
       <option value="desc">Descending</option>
     </select>
 
-    <span class="meta" id="count">Loading…</span>
-    <span id="loading" class="loading" aria-live="polite">
-      <span class="spinner" aria-hidden="true"></span>
-      <span>Loading…</span>
+    <span class="meta" id="count">
+      <span id="loading" class="loading" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Loading…</span>
+      </span>
     </span>
   </div>
 
@@ -80,7 +173,7 @@
       const av = (a[key] || "").toString().toLowerCase();
       const bv = (b[key] || "").toString().toLowerCase();
       if (av < bv) return -1 * dir;
-      if (av > bv) return  1 * dir;
+      if (av > bv) return 1 * dir;
       // Tie-breaker: code asc
       return (a.code || "").toLowerCase().localeCompare((b.code || "").toLowerCase());
     }
@@ -109,7 +202,7 @@
       const grouped = groupBy(sorted);
 
       // Sort groups (alphabetical) unless user is sorting by group desc/asc; then keep group order as a function of data.
-      const groupNames = Array.from(grouped.keys()).sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+      const groupNames = Array.from(grouped.keys()).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
       groupsDiv.innerHTML = groupNames.map(g => {
         const items = grouped.get(g);
@@ -192,4 +285,5 @@
     loadXML();
   </script>
 </body>
+
 </html>
