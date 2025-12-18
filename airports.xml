@@ -36,7 +36,7 @@
     <code>GCM</code>
     <name>Cayman Islands Airport Authority</name>
     <group>Other</group>
-    <note>Name appears to be an authority, not a single airport</note>
+    <note>Name appears to be an authority, not a single airport. British Overseas Territory</note>
   </airport>
   <airport>
     <code>NQY</code>
@@ -171,5 +171,11 @@
     <code>SOU</code>
     <name>Southampton International Airport</name>
     <group>UK</group>
+  </airport>
+  <airport>
+    <code>BDA</code>
+    <name>L.F. Wade International Airport</name>
+    <group>Other</group>
+    <note>British Overseas Territory</note>
   </airport>
 </airports>
