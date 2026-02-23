@@ -162,6 +162,12 @@
     <note>Likely placeholder / non-IATA</note>
   </airport>
   <airport>
+    <code>XSEN</code>
+    <name>Old London Southend Airport</name>
+    <group>Legacy placeholders</group>
+    <note>Likely placeholder / non-IATA</note>
+  </airport>
+  <airport>
     <code>XXX</code>
     <name>Old Stansted</name>
     <group>Legacy placeholders</group>
