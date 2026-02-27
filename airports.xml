@@ -150,6 +150,11 @@
     <group>UK</group>
   </airport>
   <airport>
+    <code>OXF</code>
+    <name>London Oxford Airport</name>
+    <group>UK</group>
+  </airport>
+  <airport>
     <code>XXXX</code>
     <name>Old East Midlands Airprot</name>
     <group>Legacy placeholders</group>
