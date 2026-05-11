@@ -773,15 +773,9 @@
 
     async function searchData8(postcode, key) {
         showLoading('data8-results');
-        const url = 'https://webservices.data-8.co.uk/PostalAddress/RetrieveById.json'
-                  + '?key=' + encodeURIComponent(key)
-                  + '&id=' + encodeURIComponent(postcode.trim().toUpperCase())
-                  + '&filters=Postcode';
-
-        // Data8 postcode-to-address lookup endpoint
-        const findUrl = 'https://webservices.data-8.co.uk/PostalAddress/Find.json'
+        const findUrl = 'https://webservices.data-8.co.uk/PostalAddress/RetrieveByPostcode.json'
                       + '?key=' + encodeURIComponent(key)
-                      + '&value=' + encodeURIComponent(postcode.trim().toUpperCase());
+                      + '&postcode=' + encodeURIComponent(postcode.trim().toUpperCase());
         try {
             const res = await fetch(findUrl);
             const data = await res.json();
