@@ -489,30 +489,45 @@
     async function searchLoqate(postcode, key) {
         showLoading('loqate-results');
 
-        const findUrl = 'https://api.addressy.com/Capture/Interactive/Find/v1.10/json3.ws'
-                      + '?Key=' + encodeURIComponent(key)
-                      + '&Text=' + encodeURIComponent(postcode.trim().toUpperCase())
-                      + '&Countries=GB'
-                      + '&Limit=20';
+        const loqateFind = (text, containerId) => {
+            let url = 'https://api.addressy.com/Capture/Interactive/Find/v1.10/json3.ws'
+                    + '?Key=' + encodeURIComponent(key)
+                    + '&Text=' + encodeURIComponent(text)
+                    + '&Countries=GB'
+                    + '&Limit=100';
+            if (containerId) url += '&Container=' + encodeURIComponent(containerId);
+            return fetch(url).then(r => r.json());
+        };
+
         try {
-            const findRes = await fetch(findUrl);
-            const findData = await findRes.json();
+            const findData = await loqateFind(postcode.trim().toUpperCase(), null);
 
             if (findData.Items && findData.Items[0] && findData.Items[0].Error) {
                 showError('loqate-results', findData.Items[0].Description || 'API error');
                 return;
             }
 
-            const candidates = (findData.Items || []).filter(i => i.Type === 'Address');
+            let candidates = findData.Items || [];
+
+            // If Loqate returned a container (Postcode/Street/Building type rather than
+            // individual Address items), expand it with a second Find using the container ID
+            if (candidates.length === 1 && candidates[0].Type !== 'Address') {
+                const expanded = await loqateFind(postcode.trim().toUpperCase(), candidates[0].Id);
+                if (expanded.Items && expanded.Items[0] && !expanded.Items[0].Error) {
+                    candidates = expanded.Items;
+                }
+            }
+
+            candidates = candidates.filter(i => i.Type === 'Address');
 
             if (!candidates.length) {
                 showError('loqate-results', 'No addresses found for this postcode.');
                 return;
             }
 
-            // Retrieve full details for each candidate
+            // Retrieve full address details for every candidate
             const retrievals = await Promise.all(
-                candidates.slice(0, 10).map(c =>
+                candidates.map(c =>
                     fetch('https://api.addressy.com/Capture/Interactive/Retrieve/v1.00/json3.ws'
                         + '?Key=' + encodeURIComponent(key)
                         + '&Id=' + encodeURIComponent(c.Id))
