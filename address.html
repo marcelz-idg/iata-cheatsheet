@@ -766,23 +766,29 @@
     }
 
     // ─── Data8 ───────────────────────────────────────────────────────────────
-    // Docs: https://www.data-8.co.uk/solutions/address-validation/
-    // Trial: register at data-8.co.uk to get a free trial API key
-    // Note: if you see a CORS error, Data8 may require server-side proxying for
-    //       certain plans. Check their CORS documentation or use their JS widget.
+    // Docs: https://webservices.data-8.co.uk/AddressCapture/GetFullAddress.json
+    // POST with JSON body: { licence, postcode, building }
+    // licence = "WebClickFull" for client-side / trial use
+    // Results[].RawAddress contains granular fields (BuildingNumber, Street etc.)
 
     async function searchData8(postcode, key) {
         showLoading('data8-results');
-        const findUrl = 'https://webservices.data-8.co.uk/PostalAddress/RetrieveByPostcode.json'
-                      + '?key=' + encodeURIComponent(key)
-                      + '&postcode=' + encodeURIComponent(postcode.trim().toUpperCase());
         try {
-            const res = await fetch(findUrl);
+            const res = await fetch('https://webservices.data-8.co.uk/AddressCapture/GetFullAddress.json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: 'apikey-' + key,
+                    licence:  'WebClickFull',
+                    postcode: postcode.trim().toUpperCase(),
+                    building: '',
+                    options:  { ReturnResultCount: false, IncludeAliases: false }
+                })
+            });
             const data = await res.json();
 
             if (!data.Status || data.Status.Success === false) {
-                const msg = (data.Status && data.Status.ErrorMessage) || 'Lookup failed';
-                showError('data8-results', msg);
+                showError('data8-results', data.Status.ErrorMessage || 'Lookup failed');
                 return;
             }
 
@@ -793,30 +799,30 @@
             }
 
             const items = results.map(r => {
-                // Data8 returns granular fields: SubBuilding, BuildingName, BuildingNumber,
-                // ThoroughfareName — use these instead of the pre-combined Address1
-                const subBuilding = [r.SubBuilding].filter(Boolean).join('');
-                const building    = [r.BuildingName, r.BuildingNumber].filter(Boolean).join(' ') || r.Premise || '';
-                const buildingId  = [subBuilding, building].filter(Boolean).join(', ') || r.Address1 || '';
-                const street      = r.ThoroughfareName || r.Street || r.Address2 || '';
+                // RawAddress contains the granular PAF fields
+                const raw         = r.RawAddress || {};
+                const subBuilding = raw.SubBuildingName || '';
+                const building    = [raw.BuildingName, raw.BuildingNumber].filter(Boolean).join(' ');
+                const buildingId  = [subBuilding, building].filter(Boolean).join(', ') || (r.Address && r.Address.Lines && r.Address.Lines[0]) || '';
+                const street      = raw.ThoroughfareName || raw.DependentThoroughfareName || '';
 
                 return {
                     line1: [buildingId, street].filter(Boolean).join(', '),
-                    line2: [r.Town, r.County, r.Postcode].filter(Boolean).join(', '),
+                    line2: [raw.PostTown, raw.County, raw.Postcode].filter(Boolean).join(', '),
                     address: {
                         tx_address_1: buildingId,
                         tx_address_2: street,
-                        tx_city:      r.Town || '',
-                        tx_county:    r.County || '',
-                        tx_postcode:  r.Postcode || '',
-                        id_country:   r.CountryCode || 'GB',
+                        tx_city:      raw.PostTown || '',
+                        tx_county:    raw.County || '',
+                        tx_postcode:  raw.Postcode || '',
+                        id_country:   'GB',
                     }
                 };
             });
 
             showResults('data8-results', items, 'data8');
         } catch (e) {
-            showError('data8-results', 'Network error: ' + e.message + '. Data8 may require a server-side proxy for CORS.');
+            showError('data8-results', 'Network error: ' + e.message);
         }
     }
 
