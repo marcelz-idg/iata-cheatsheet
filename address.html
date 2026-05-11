@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Address Lookup POC — AGW-10861</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 14px;
+            background: #f4f5f7;
+            color: #172b4d;
+            padding: 24px;
+        }
+
+        header {
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        header p {
+            color: #5e6c84;
+            margin-top: 4px;
+            font-size: 13px;
+        }
+
+        .providers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .provider {
+            background: #fff;
+            border: 1px solid #dfe1e6;
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .provider h2 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .provider-meta {
+            font-size: 12px;
+            color: #5e6c84;
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5e6c84;
+            margin-bottom: 4px;
+            margin-top: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            border: 1px solid #dfe1e6;
+            border-radius: 4px;
+            padding: 7px 10px;
+            font-size: 14px;
+            color: #172b4d;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4c9aff;
+            box-shadow: 0 0 0 2px rgba(76,154,255,0.2);
+        }
+
+        .postcode-input {
+            font-family: monospace;
+            font-size: 15px;
+            text-transform: uppercase;
+        }
+
+        .hint {
+            font-size: 11px;
+            color: #97a0af;
+            margin-top: 4px;
+        }
+
+        .results {
+            margin-top: 10px;
+            border: 1px solid #dfe1e6;
+            border-radius: 4px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        .results-header {
+            background: #f4f5f7;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5e6c84;
+            border-bottom: 1px solid #dfe1e6;
+        }
+
+        .result-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f4f5f7;
+            font-size: 13px;
+            line-height: 1.4;
+            transition: background 0.1s;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item:hover {
+            background: #e4f0ff;
+        }
+
+        .result-item .line1 {
+            font-weight: 500;
+        }
+
+        .result-item .line2 {
+            color: #5e6c84;
+            font-size: 12px;
+        }
+
+        .error-msg {
+            padding: 8px 10px;
+            color: #bf2600;
+            font-size: 13px;
+            background: #ffebe6;
+        }
+
+        .loading-msg {
+            padding: 8px 10px;
+            color: #5e6c84;
+            font-size: 13px;
+        }
+
+        /* Address form */
+        .address-form {
+            background: #fff;
+            border: 1px solid #dfe1e6;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .address-form h2 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filled-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .filled-badge.ideal   { background: #e3fcef; color: #006644; }
+        .filled-badge.data8   { background: #deebff; color: #0747a6; }
+        .filled-badge.loqate  { background: #fff0b3; color: #172b4d; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .field label {
+            margin-top: 0;
+        }
+
+        .field input {
+            background: #fafbfc;
+        }
+
+        .field input.filled {
+            background: #fff;
+            border-color: #4c9aff;
+        }
+
+        .field-id {
+            font-size: 10px;
+            color: #97a0af;
+            font-family: monospace;
+            margin-top: 2px;
+        }
+
+        /* Provider colour accents */
+        #provider-ideal { border-top: 3px solid #36b37e; }
+        #provider-data8 { border-top: 3px solid #0065ff; }
+        #provider-loqate { border-top: 3px solid #ff8b00; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Address Lookup POC</h1>
+    <p>AGW-10861 — Replacement evaluation &bull; Type a postcode and press Enter to search, then click an address to fill the form.</p>
+</header>
+
+<div class="providers">
+
+    <!-- Ideal Postcodes -->
+    <div class="provider" id="provider-ideal">
+        <h2>Ideal Postcodes</h2>
+        <p class="provider-meta">ISO 27001 &bull; Global &bull; ~£21,140/yr</p>
+
+        <label for="ideal-key">API Key</label>
+        <input type="text" id="ideal-key" value="ak_test" placeholder="API key">
+
+        <label for="ideal-postcode">Postcode</label>
+        <input type="text" id="ideal-postcode" class="postcode-input" placeholder="e.g. ID1 1QD">
+        <p class="hint">Use <strong>ID1 1QD</strong> with key <strong>ak_test</strong> to test instantly</p>
+
+        <div id="ideal-results" class="results"></div>
+    </div>
+
+    <!-- Data8 -->
+    <div class="provider" id="provider-data8">
+        <h2>Data8</h2>
+        <p class="provider-meta">ISO 27001 &bull; Global &bull; ~£30,200/yr</p>
+
+        <label for="data8-key">API Key</label>
+        <input type="text" id="data8-key" placeholder="Paste trial key from data-8.co.uk">
+
+        <label for="data8-postcode">Postcode</label>
+        <input type="text" id="data8-postcode" class="postcode-input" placeholder="Enter postcode">
+        <p class="hint">Register at <strong>data-8.co.uk</strong> for a free trial key</p>
+
+        <div id="data8-results" class="results"></div>
+    </div>
+
+    <!-- Loqate -->
+    <div class="provider" id="provider-loqate">
+        <h2>Loqate</h2>
+        <p class="provider-meta">ISO 27001 &bull; Global &bull; Quote required</p>
+
+        <label for="loqate-key">API Key</label>
+        <input type="text" id="loqate-key" placeholder="Paste trial key from loqate.com">
+
+        <label for="loqate-postcode">Postcode</label>
+        <input type="text" id="loqate-postcode" class="postcode-input" placeholder="Enter postcode">
+        <p class="hint">Register at <strong>loqate.com</strong> for free trial credits</p>
+
+        <div id="loqate-results" class="results"></div>
+    </div>
+
+</div>
+
+<!-- Shared Address Form -->
+<div class="address-form">
+    <h2>
+        Address Form
+        <span id="filled-by"></span>
+    </h2>
+    <div class="form-grid">
+        <div class="field">
+            <label for="tx_address_1">Building Name / Number</label>
+            <input type="text" id="tx_address_1" placeholder="—">
+            <p class="field-id">tx_address_1</p>
+        </div>
+        <div class="field">
+            <label for="tx_address_2">Street</label>
+            <input type="text" id="tx_address_2" placeholder="—">
+            <p class="field-id">tx_address_2</p>
+        </div>
+        <div class="field">
+            <label for="tx_city">City</label>
+            <input type="text" id="tx_city" placeholder="—">
+            <p class="field-id">tx_city</p>
+        </div>
+        <div class="field">
+            <label for="tx_county">County</label>
+            <input type="text" id="tx_county" placeholder="—">
+            <p class="field-id">tx_county</p>
+        </div>
+        <div class="field">
+            <label for="tx_postcode">Postcode</label>
+            <input type="text" id="tx_postcode" placeholder="—">
+            <p class="field-id">tx_postcode</p>
+        </div>
+        <div class="field">
+            <label for="id_country">Country</label>
+            <input type="text" id="id_country" placeholder="—">
+            <p class="field-id">id_country</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ─── Shared form fill ────────────────────────────────────────────────────
+
+    function fillForm(address, providerKey) {
+        const fields = ['tx_address_1', 'tx_address_2', 'tx_city', 'tx_county', 'tx_postcode', 'id_country'];
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            el.value = address[id] || '';
+            el.classList.toggle('filled', !!address[id]);
+        });
+
+        const badge = document.getElementById('filled-by');
+        const labels = { ideal: 'Ideal Postcodes', data8: 'Data8', loqate: 'Loqate' };
+        badge.textContent = 'filled by ' + labels[providerKey];
+        badge.className = 'filled-badge ' + providerKey;
+    }
+
+    function showResults(containerId, items, providerKey) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        if (!items.length) {
+            container.innerHTML = '<div class="error-msg">No addresses found for this postcode.</div>';
+            container.classList.add('visible');
+            return;
+        }
+
+        container.innerHTML = '<div class="results-header">' + items.length + ' address' + (items.length !== 1 ? 'es' : '') + ' found — click to select</div>';
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.innerHTML = '<div class="line1">' + escHtml(item.line1) + '</div>'
+                          + '<div class="line2">' + escHtml(item.line2) + '</div>';
+            div.addEventListener('click', () => {
+                fillForm(item.address, providerKey);
+                container.classList.remove('visible');
+            });
+            container.appendChild(div);
+        });
+
+        container.classList.add('visible');
+    }
+
+    function showError(containerId, msg) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '<div class="error-msg">' + escHtml(msg) + '</div>';
+        container.classList.add('visible');
+    }
+
+    function showLoading(containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '<div class="loading-msg">Searching…</div>';
+        container.classList.add('visible');
+    }
+
+    function escHtml(str) {
+        return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ─── Ideal Postcodes ─────────────────────────────────────────────────────
+    // Docs: https://ideal-postcodes.co.uk/documentation/postcodes#postcode
+    // Test: key=ak_test, postcode=ID1 1QD
+
+    async function searchIdeal(postcode, key) {
+        showLoading('ideal-results');
+        const url = 'https://api.ideal-postcodes.co.uk/v1/postcodes/'
+                  + encodeURIComponent(postcode.trim().toUpperCase())
+                  + '?api_key=' + encodeURIComponent(key);
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.code !== 2000) {
+                showError('ideal-results', data.message || 'Lookup failed (code ' + data.code + ')');
+                return;
+            }
+
+            const items = data.result.map(r => ({
+                line1: [r.line_1, r.line_2].filter(Boolean).join(', '),
+                line2: [r.post_town, r.county, r.postcode].filter(Boolean).join(', '),
+                address: {
+                    tx_address_1: r.line_1 || '',
+                    tx_address_2: r.line_2 || '',
+                    tx_city:      r.post_town || '',
+                    tx_county:    r.county || '',
+                    tx_postcode:  r.postcode || '',
+                    id_country:   r.country || 'GB',
+                }
+            }));
+
+            showResults('ideal-results', items, 'ideal');
+        } catch (e) {
+            showError('ideal-results', 'Network error: ' + e.message);
+        }
+    }
+
+    // ─── Data8 ───────────────────────────────────────────────────────────────
+    // Docs: https://www.data-8.co.uk/solutions/address-validation/
+    // Trial: register at data-8.co.uk to get a free trial API key
+    // Note: if you see a CORS error, Data8 may require server-side proxying for
+    //       certain plans. Check their CORS documentation or use their JS widget.
+
+    async function searchData8(postcode, key) {
+        showLoading('data8-results');
+        const url = 'https://webservices.data-8.co.uk/PostalAddress/RetrieveById.json'
+                  + '?key=' + encodeURIComponent(key)
+                  + '&id=' + encodeURIComponent(postcode.trim().toUpperCase())
+                  + '&filters=Postcode';
+
+        // Data8 postcode-to-address lookup endpoint
+        const findUrl = 'https://webservices.data-8.co.uk/PostalAddress/Find.json'
+                      + '?key=' + encodeURIComponent(key)
+                      + '&value=' + encodeURIComponent(postcode.trim().toUpperCase());
+        try {
+            const res = await fetch(findUrl);
+            const data = await res.json();
+
+            if (!data.Status || data.Status.Success === false) {
+                const msg = (data.Status && data.Status.ErrorMessage) || 'Lookup failed';
+                showError('data8-results', msg);
+                return;
+            }
+
+            const results = data.Results || [];
+            if (!results.length) {
+                showError('data8-results', 'No addresses found for this postcode.');
+                return;
+            }
+
+            const items = results.map(r => ({
+                line1: [r.Address1, r.Address2].filter(Boolean).join(', '),
+                line2: [r.Town, r.County, r.Postcode].filter(Boolean).join(', '),
+                address: {
+                    tx_address_1: r.Address1 || '',
+                    tx_address_2: r.Address2 || '',
+                    tx_city:      r.Town || '',
+                    tx_county:    r.County || '',
+                    tx_postcode:  r.Postcode || '',
+                    id_country:   r.CountryCode || 'GB',
+                }
+            }));
+
+            showResults('data8-results', items, 'data8');
+        } catch (e) {
+            showError('data8-results', 'Network error: ' + e.message + '. Data8 may require a server-side proxy for CORS.');
+        }
+    }
+
+    // ─── Loqate ──────────────────────────────────────────────────────────────
+    // Docs: https://www.loqate.com/resources/support/setup-guides/
+    // Trial: register at loqate.com for free credits (~$2.50 on signup)
+    // Two-step: Find (get list of candidate IDs) → Retrieve (get full address by ID)
+
+    async function searchLoqate(postcode, key) {
+        showLoading('loqate-results');
+
+        const findUrl = 'https://api.addressy.com/Capture/Interactive/Find/v1.10/json3.ws'
+                      + '?Key=' + encodeURIComponent(key)
+                      + '&Text=' + encodeURIComponent(postcode.trim().toUpperCase())
+                      + '&Countries=GB'
+                      + '&Limit=20';
+        try {
+            const findRes = await fetch(findUrl);
+            const findData = await findRes.json();
+
+            if (findData.Items && findData.Items[0] && findData.Items[0].Error) {
+                showError('loqate-results', findData.Items[0].Description || 'API error');
+                return;
+            }
+
+            const candidates = (findData.Items || []).filter(i => i.Type === 'Address');
+
+            if (!candidates.length) {
+                showError('loqate-results', 'No addresses found for this postcode.');
+                return;
+            }
+
+            // Retrieve full details for each candidate
+            const retrievals = await Promise.all(
+                candidates.slice(0, 10).map(c =>
+                    fetch('https://api.addressy.com/Capture/Interactive/Retrieve/v1.00/json3.ws'
+                        + '?Key=' + encodeURIComponent(key)
+                        + '&Id=' + encodeURIComponent(c.Id))
+                    .then(r => r.json())
+                )
+            );
+
+            const items = retrievals
+                .map(rd => (rd.Items && rd.Items[0]) || null)
+                .filter(Boolean)
+                .map(r => ({
+                    line1: [r.Line1, r.Line2].filter(Boolean).join(', '),
+                    line2: [r.City, r.Province, r.PostalCode].filter(Boolean).join(', '),
+                    address: {
+                        tx_address_1: r.Line1 || '',
+                        tx_address_2: r.Line2 || '',
+                        tx_city:      r.City || '',
+                        tx_county:    r.Province || '',
+                        tx_postcode:  r.PostalCode || '',
+                        id_country:   r.CountryIso2 || 'GB',
+                    }
+                }));
+
+            showResults('loqate-results', items, 'loqate');
+        } catch (e) {
+            showError('loqate-results', 'Network error: ' + e.message);
+        }
+    }
+
+    // ─── Event wiring ────────────────────────────────────────────────────────
+
+    function wireProvider(postcodeId, keyId, searchFn, resultsId) {
+        const postcodeInput = document.getElementById(postcodeId);
+        const keyInput = document.getElementById(keyId);
+
+        postcodeInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                const postcode = postcodeInput.value.trim();
+                const key = keyInput.value.trim();
+                if (!postcode) return;
+                if (!key) {
+                    showError(resultsId, 'Please enter an API key above.');
+                    return;
+                }
+                searchFn(postcode, key);
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', e => {
+            if (!postcodeInput.contains(e.target)) {
+                const container = document.getElementById(resultsId);
+                if (!container.contains(e.target)) {
+                    container.classList.remove('visible');
+                }
+            }
+        });
+    }
+
+    wireProvider('ideal-postcode',  'ideal-key',  searchIdeal,  'ideal-results');
+    wireProvider('data8-postcode',  'data8-key',  searchData8,  'data8-results');
+    wireProvider('loqate-postcode', 'loqate-key', searchLoqate, 'loqate-results');
+</script>
+
+</body>
+</html>
