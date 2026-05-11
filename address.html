@@ -392,18 +392,27 @@
                 return;
             }
 
-            const items = data.result.map(r => ({
-                line1: [r.line_1, r.line_2].filter(Boolean).join(', '),
-                line2: [r.post_town, r.county, r.postcode].filter(Boolean).join(', '),
-                address: {
-                    tx_address_1: r.line_1 || '',
-                    tx_address_2: r.line_2 || '',
-                    tx_city:      r.post_town || '',
-                    tx_county:    r.county || '',
-                    tx_postcode:  r.postcode || '',
-                    id_country:   r.country || 'GB',
-                }
-            }));
+            const items = data.result.map(r => {
+                // Ideal Postcodes returns granular fields: building_number, building_name,
+                // sub_building_name, thoroughfare — use these instead of the pre-combined line_1
+                const subBuilding = [r.sub_building_name, r.sub_building_number].filter(Boolean).join(' ');
+                const building    = [r.building_name, r.building_number].filter(Boolean).join(' ');
+                const buildingId  = [subBuilding, building].filter(Boolean).join(', ') || r.premise || r.line_1 || '';
+                const street      = r.thoroughfare || r.dependant_thoroughfare || '';
+
+                return {
+                    line1: [buildingId, street].filter(Boolean).join(', '),
+                    line2: [r.post_town, r.county, r.postcode].filter(Boolean).join(', '),
+                    address: {
+                        tx_address_1: buildingId,
+                        tx_address_2: street,
+                        tx_city:      r.post_town || '',
+                        tx_county:    r.county || '',
+                        tx_postcode:  r.postcode || '',
+                        id_country:   r.country || 'GB',
+                    }
+                };
+            });
 
             showResults('ideal-results', items, 'ideal');
         } catch (e) {
@@ -444,18 +453,27 @@
                 return;
             }
 
-            const items = results.map(r => ({
-                line1: [r.Address1, r.Address2].filter(Boolean).join(', '),
-                line2: [r.Town, r.County, r.Postcode].filter(Boolean).join(', '),
-                address: {
-                    tx_address_1: r.Address1 || '',
-                    tx_address_2: r.Address2 || '',
-                    tx_city:      r.Town || '',
-                    tx_county:    r.County || '',
-                    tx_postcode:  r.Postcode || '',
-                    id_country:   r.CountryCode || 'GB',
-                }
-            }));
+            const items = results.map(r => {
+                // Data8 returns granular fields: SubBuilding, BuildingName, BuildingNumber,
+                // ThoroughfareName — use these instead of the pre-combined Address1
+                const subBuilding = [r.SubBuilding].filter(Boolean).join('');
+                const building    = [r.BuildingName, r.BuildingNumber].filter(Boolean).join(' ') || r.Premise || '';
+                const buildingId  = [subBuilding, building].filter(Boolean).join(', ') || r.Address1 || '';
+                const street      = r.ThoroughfareName || r.Street || r.Address2 || '';
+
+                return {
+                    line1: [buildingId, street].filter(Boolean).join(', '),
+                    line2: [r.Town, r.County, r.Postcode].filter(Boolean).join(', '),
+                    address: {
+                        tx_address_1: buildingId,
+                        tx_address_2: street,
+                        tx_city:      r.Town || '',
+                        tx_county:    r.County || '',
+                        tx_postcode:  r.Postcode || '',
+                        id_country:   r.CountryCode || 'GB',
+                    }
+                };
+            });
 
             showResults('data8-results', items, 'data8');
         } catch (e) {
@@ -505,18 +523,27 @@
             const items = retrievals
                 .map(rd => (rd.Items && rd.Items[0]) || null)
                 .filter(Boolean)
-                .map(r => ({
-                    line1: [r.Line1, r.Line2].filter(Boolean).join(', '),
-                    line2: [r.City, r.Province, r.PostalCode].filter(Boolean).join(', '),
-                    address: {
-                        tx_address_1: r.Line1 || '',
-                        tx_address_2: r.Line2 || '',
-                        tx_city:      r.City || '',
-                        tx_county:    r.Province || '',
-                        tx_postcode:  r.PostalCode || '',
-                        id_country:   r.CountryIso2 || 'GB',
-                    }
-                }));
+                .map(r => {
+                    // Loqate Retrieve returns granular fields: SubBuilding, BuildingName,
+                    // BuildingNumber, Street — use these instead of the pre-combined Line1
+                    const subBuilding = [r.SubBuilding].filter(Boolean).join('');
+                    const building    = [r.BuildingName, r.BuildingNumber].filter(Boolean).join(' ');
+                    const buildingId  = [subBuilding, building].filter(Boolean).join(', ') || r.Line1 || '';
+                    const street      = r.Street || r.SecondaryStreet || r.Line2 || '';
+
+                    return {
+                        line1: [buildingId, street].filter(Boolean).join(', '),
+                        line2: [r.City, r.Province, r.PostalCode].filter(Boolean).join(', '),
+                        address: {
+                            tx_address_1: buildingId,
+                            tx_address_2: street,
+                            tx_city:      r.City || '',
+                            tx_county:    r.Province || '',
+                            tx_postcode:  r.PostalCode || '',
+                            id_country:   r.CountryIso2 || 'GB',
+                        }
+                    };
+                });
 
             showResults('loqate-results', items, 'loqate');
         } catch (e) {
