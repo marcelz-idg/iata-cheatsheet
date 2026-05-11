@@ -228,6 +228,151 @@
         #provider-ideal { border-top: 3px solid #36b37e; }
         #provider-data8 { border-top: 3px solid #0065ff; }
         #provider-loqate { border-top: 3px solid #ff8b00; }
+
+        /* Comparison section */
+        .comparison {
+            margin-top: 32px;
+        }
+
+        .comparison h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .comparison-intro {
+            color: #5e6c84;
+            font-size: 13px;
+            margin-bottom: 20px;
+            max-width: 900px;
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border: 1px solid #dfe1e6;
+            border-radius: 6px;
+            overflow: hidden;
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+
+        .comparison-table th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            background: #f4f5f7;
+            border-bottom: 2px solid #dfe1e6;
+        }
+
+        .comparison-table th.col-ideal  { border-top: 3px solid #36b37e; }
+        .comparison-table th.col-data8  { border-top: 3px solid #0065ff; }
+        .comparison-table th.col-loqate { border-top: 3px solid #ff8b00; }
+
+        .comparison-table td {
+            padding: 9px 14px;
+            border-bottom: 1px solid #f4f5f7;
+            vertical-align: top;
+            line-height: 1.5;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover td {
+            background: #fafbfc;
+        }
+
+        .row-label {
+            font-weight: 600;
+            color: #5e6c84;
+            width: 220px;
+        }
+
+        .comparison-table td.yes  { color: #006644; }
+        .comparison-table td.warn { color: #974f0c; }
+
+        .comparison-table code {
+            background: #f4f5f7;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        /* Provider cards */
+        .provider-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .pcard {
+            background: #fff;
+            border: 1px solid #dfe1e6;
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .pcard-ideal  { border-top: 3px solid #36b37e; }
+        .pcard-data8  { border-top: 3px solid #0065ff; }
+        .pcard-loqate { border-top: 3px solid #ff8b00; }
+
+        .pcard h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .pcard-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .pcard-section {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5e6c84;
+            margin-bottom: 6px;
+        }
+
+        .pcard ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pcard ul li {
+            font-size: 12px;
+            color: #172b4d;
+            line-height: 1.5;
+            padding: 3px 0;
+            padding-left: 14px;
+            position: relative;
+        }
+
+        .pcard ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #97a0af;
+        }
+
+        .recommendation {
+            background: #e3fcef;
+            border: 1px solid #abf5d1;
+            border-radius: 6px;
+            padding: 14px 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #172b4d;
+        }
     </style>
 </head>
 <body>
@@ -324,6 +469,194 @@
             <input type="text" id="id_country" placeholder="—">
             <p class="field-id">id_country</p>
         </div>
+    </div>
+</div>
+
+<!-- Comparison Section -->
+<div class="comparison">
+    <h2>Provider Comparison</h2>
+    <p class="comparison-intro">Summary of the three shortlisted providers as replacements for Codeberry (GetAddress.io). All three meet the core requirements: ISO 27001 certified, global address coverage, and Royal Mail PAF as the authoritative data source.</p>
+
+    <table class="comparison-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th class="col-ideal">Ideal Postcodes</th>
+                <th class="col-data8">Data8</th>
+                <th class="col-loqate">Loqate</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="row-label">Annual cost (AGW ~500k/yr)</td>
+                <td>£14,000</td>
+                <td>£20,000</td>
+                <td>Quote required (~£20,000+)</td>
+            </tr>
+            <tr>
+                <td class="row-label">Annual cost (VGW ~200k/yr)</td>
+                <td>£5,600</td>
+                <td>£8,000</td>
+                <td>Quote required (~£8,000+)</td>
+            </tr>
+            <tr>
+                <td class="row-label">Annual cost (IDG2 ~55k/yr)</td>
+                <td>£1,540</td>
+                <td>£2,200</td>
+                <td>Quote required (~£2,200+)</td>
+            </tr>
+            <tr>
+                <td class="row-label">Total (all platforms)</td>
+                <td><strong>~£21,140</strong></td>
+                <td><strong>~£30,200</strong></td>
+                <td><strong>Quote required</strong></td>
+            </tr>
+            <tr>
+                <td class="row-label">ISO 27001</td>
+                <td class="yes">Yes</td>
+                <td class="yes">Yes</td>
+                <td class="yes">Yes</td>
+            </tr>
+            <tr>
+                <td class="row-label">Global addresses</td>
+                <td class="yes">Yes</td>
+                <td class="yes">Yes</td>
+                <td class="yes">Yes</td>
+            </tr>
+            <tr>
+                <td class="row-label">Data source</td>
+                <td>Royal Mail PAF, updated daily</td>
+                <td>Royal Mail PAF, updated daily</td>
+                <td>Royal Mail PAF</td>
+            </tr>
+            <tr>
+                <td class="row-label">Type-ahead support</td>
+                <td class="yes">Yes</td>
+                <td class="yes">Yes</td>
+                <td class="yes">Yes</td>
+            </tr>
+            <tr>
+                <td class="row-label">API calls per postcode lookup</td>
+                <td class="yes">1 call — returns full address list</td>
+                <td class="yes">1 call — returns full address list</td>
+                <td class="warn">2 calls — Find (free) + Retrieve per selected address (billed)</td>
+            </tr>
+            <tr>
+                <td class="row-label">Billed per</td>
+                <td>Per postcode lookup</td>
+                <td>Per postcode lookup</td>
+                <td class="warn">Per address retrieved (not per search)</td>
+            </tr>
+            <tr>
+                <td class="row-label">Integration complexity</td>
+                <td class="yes">Low — single request, straightforward response</td>
+                <td>Medium — similar to Ideal Postcodes</td>
+                <td class="warn">Higher — two-step API, lazy retrieval required to control costs</td>
+            </tr>
+            <tr>
+                <td class="row-label">Similarity to current Codeberry implementation</td>
+                <td class="yes">High — minimal refactoring needed</td>
+                <td>Medium — similar patterns, some refactoring</td>
+                <td>Medium — different API structure</td>
+            </tr>
+            <tr>
+                <td class="row-label">Developer support</td>
+                <td>Live chat, clear docs</td>
+                <td>Technical support available</td>
+                <td>Clear docs, status page</td>
+            </tr>
+            <tr>
+                <td class="row-label">Public status page</td>
+                <td class="yes">Yes</td>
+                <td class="yes">Yes</td>
+                <td class="yes">Yes</td>
+            </tr>
+            <tr>
+                <td class="row-label">Free sandbox / test key</td>
+                <td class="yes">Yes — no signup needed (<code>ak_test</code>)</td>
+                <td>Trial account required</td>
+                <td class="warn">Trial account required, 35 lookups/day cap</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="provider-cards">
+
+        <div class="pcard pcard-ideal">
+            <h3>Ideal Postcodes</h3>
+            <div class="pcard-cols">
+                <div>
+                    <p class="pcard-section">Pros</p>
+                    <ul>
+                        <li>Cheapest option across all three platforms</li>
+                        <li>Single API call returns all addresses — simple and predictable billing</li>
+                        <li>Closest to the current Codeberry integration — least refactoring required</li>
+                        <li>Free sandbox with test key, no signup needed</li>
+                        <li>Daily Royal Mail PAF refresh</li>
+                        <li>Live developer chat</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="pcard-section">Cons</p>
+                    <ul>
+                        <li>Smaller company than Loqate — less enterprise track record</li>
+                        <li>No mention of formal SLA uptime guarantee</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="pcard pcard-data8">
+            <h3>Data8</h3>
+            <div class="pcard-cols">
+                <div>
+                    <p class="pcard-section">Pros</p>
+                    <ul>
+                        <li>ISO 27001, global coverage, daily PAF refresh</li>
+                        <li>Single API call — same simple billing model as Ideal Postcodes</li>
+                        <li>Reliable mid-tier option between Ideal Postcodes and Loqate on price</li>
+                        <li>Public status page</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="pcard-section">Cons</p>
+                    <ul>
+                        <li>£9,000/yr more expensive than Ideal Postcodes across all platforms</li>
+                        <li>Developer support details not clearly published</li>
+                        <li>Trial requires registration — no instant sandbox</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="pcard pcard-loqate">
+            <h3>Loqate</h3>
+            <div class="pcard-cols">
+                <div>
+                    <p class="pcard-section">Pros</p>
+                    <ul>
+                        <li>Industry leader — largest global address dataset</li>
+                        <li>ISO 27001, comprehensive global coverage</li>
+                        <li>Well-documented API with strong enterprise support</li>
+                        <li>Public status page and formal SLA</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="pcard-section">Cons</p>
+                    <ul>
+                        <li>Two-step API: Find (free) + Retrieve (billed per address selected, not per search) — more complex to integrate correctly and easy to over-consume credits if not implemented carefully</li>
+                        <li>Most expensive option and requires a custom quote</li>
+                        <li>Trial is very limited: 35 address retrievals per day</li>
+                        <li>Pricing less transparent than competitors</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="recommendation">
+        <strong>Recommendation:</strong> Ideal Postcodes is the strongest choice — lowest cost, simplest API, closest to the current implementation, and the only provider with an instant test sandbox. Data8 is a solid fallback if a more established name is preferred. Loqate is premium but its two-step billing model adds integration complexity and makes trial evaluation difficult.
     </div>
 </div>
 
@@ -495,8 +828,8 @@
 
     // ─── Loqate ──────────────────────────────────────────────────────────────
     // Docs: https://www.loqate.com/resources/support/setup-guides/
-    // Trial: register at loqate.com for free credits (~$2.50 on signup)
-    // Two-step: Find (get list of candidate IDs) → Retrieve (get full address by ID)
+    // Trial: register at loqate.com for free credits
+    // Two-step: Find (free, returns list) → Retrieve (costs 1 credit, only on click)
 
     async function searchLoqate(postcode, key) {
         showLoading('loqate-results');
@@ -511,6 +844,12 @@
             return fetch(url).then(r => r.json());
         };
 
+        const loqateRetrieve = (id) =>
+            fetch('https://api.addressy.com/Capture/Interactive/Retrieve/v1.00/json3.ws'
+                + '?Key=' + encodeURIComponent(key)
+                + '&Id=' + encodeURIComponent(id))
+            .then(r => r.json());
+
         try {
             const findData = await loqateFind(postcode.trim().toUpperCase(), null);
 
@@ -521,8 +860,8 @@
 
             let candidates = findData.Items || [];
 
-            // If Loqate returned a container (Postcode/Street/Building type rather than
-            // individual Address items), expand it with a second Find using the container ID
+            // If Loqate returned a container (Postcode/Street type), expand it with a
+            // second Find using the container ID — still free, no Retrieve called yet
             if (candidates.length === 1 && candidates[0].Type !== 'Address') {
                 const expanded = await loqateFind(postcode.trim().toUpperCase(), candidates[0].Id);
                 if (expanded.Items && expanded.Items[0] && !expanded.Items[0].Error) {
@@ -537,42 +876,48 @@
                 return;
             }
 
-            // Cap at 25 to avoid burning through trial credits on large postcodes
-            const retrievals = await Promise.all(
-                candidates.slice(0, 25).map(c =>
-                    fetch('https://api.addressy.com/Capture/Interactive/Retrieve/v1.00/json3.ws'
-                        + '?Key=' + encodeURIComponent(key)
-                        + '&Id=' + encodeURIComponent(c.Id))
-                    .then(r => r.json())
-                )
-            );
+            const container = document.getElementById('loqate-results');
+            container.innerHTML = '<div class="results-header">'
+                + candidates.length + ' address' + (candidates.length !== 1 ? 'es' : '')
+                + ' found — click to select</div>';
 
-            const items = retrievals
-                .map(rd => (rd.Items && rd.Items[0]) || null)
-                .filter(Boolean)
-                .map(r => {
-                    // Loqate Retrieve returns granular fields: SubBuilding, BuildingName,
-                    // BuildingNumber, Street — use these instead of the pre-combined Line1
-                    const subBuilding = [r.SubBuilding].filter(Boolean).join('');
-                    const building    = [r.BuildingName, r.BuildingNumber].filter(Boolean).join(' ');
-                    const buildingId  = [subBuilding, building].filter(Boolean).join(', ') || r.Line1 || '';
-                    const street      = r.Street || r.SecondaryStreet || r.Line2 || '';
+            candidates.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.innerHTML = '<div class="line1">' + escHtml(c.Text) + '</div>'
+                              + '<div class="line2">' + escHtml(c.Description) + '</div>';
 
-                    return {
-                        line1: [buildingId, street].filter(Boolean).join(', '),
-                        line2: [r.City, r.Province, r.PostalCode].filter(Boolean).join(', '),
-                        address: {
+                div.addEventListener('click', async () => {
+                    div.textContent = 'Loading…';
+                    try {
+                        const rd = await loqateRetrieve(c.Id);
+                        const r = rd.Items && rd.Items[0];
+                        if (!r) { div.textContent = 'Failed to retrieve address.'; return; }
+
+                        const subBuilding = r.SubBuilding || '';
+                        const building    = [r.BuildingName, r.BuildingNumber].filter(Boolean).join(' ');
+                        const buildingId  = [subBuilding, building].filter(Boolean).join(', ') || r.Line1 || '';
+                        const street      = r.Street || r.SecondaryStreet || r.Line2 || '';
+
+                        fillForm({
                             tx_address_1: buildingId,
                             tx_address_2: street,
                             tx_city:      r.City || '',
                             tx_county:    r.Province || '',
                             tx_postcode:  r.PostalCode || '',
                             id_country:   r.CountryIso2 || 'GB',
-                        }
-                    };
+                        }, 'loqate');
+
+                        container.classList.remove('visible');
+                    } catch (e) {
+                        div.textContent = 'Error: ' + e.message;
+                    }
                 });
 
-            showResults('loqate-results', items, 'loqate');
+                container.appendChild(div);
+            });
+
+            container.classList.add('visible');
         } catch (e) {
             showError('loqate-results', 'Network error: ' + e.message);
         }
