@@ -95,6 +95,17 @@
             margin-top: 4px;
         }
 
+        .trial-notice {
+            font-size: 11px;
+            color: #5e6c84;
+            background: #fff7e6;
+            border: 1px solid #ffe399;
+            border-radius: 4px;
+            padding: 6px 8px;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
         .results {
             margin-top: 10px;
             border: 1px solid #dfe1e6;
@@ -269,6 +280,7 @@
         <label for="loqate-postcode">Postcode</label>
         <input type="text" id="loqate-postcode" class="postcode-input" placeholder="Enter postcode">
         <p class="hint">Register at <strong>loqate.com</strong> for free trial credits</p>
+        <p class="trial-notice">Trial limit: 35 lookups/day. Each address returned costs 1 credit — a single postcode search can use up to 25 credits. If the limit is exceeded, it resets at midnight. Contact Loqate to request a higher evaluation limit.</p>
 
         <div id="loqate-results" class="results"></div>
     </div>
@@ -525,9 +537,9 @@
                 return;
             }
 
-            // Retrieve full address details for every candidate
+            // Cap at 25 to avoid burning through trial credits on large postcodes
             const retrievals = await Promise.all(
-                candidates.map(c =>
+                candidates.slice(0, 25).map(c =>
                     fetch('https://api.addressy.com/Capture/Interactive/Retrieve/v1.00/json3.ws'
                         + '?Key=' + encodeURIComponent(key)
                         + '&Id=' + encodeURIComponent(c.Id))
