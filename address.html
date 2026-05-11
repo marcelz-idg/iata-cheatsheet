@@ -410,6 +410,7 @@
         <label for="data8-postcode">Postcode</label>
         <input type="text" id="data8-postcode" class="postcode-input" placeholder="Enter postcode">
         <p class="hint">Register at <strong>data-8.co.uk</strong> for a free trial key</p>
+        <p class="trial-notice">Trial limitation: Data8 restricts direct API access on free trial accounts — the AddressCapture service returns 403 even with a valid key. API access requires manual activation by their team (email info@data-8.co.uk). In production with a paid account, the raw API works with just the key — no library needed. This is a significant evaluation hurdle compared to Ideal Postcodes and Loqate.</p>
 
         <div id="data8-results" class="results"></div>
     </div>
@@ -574,8 +575,14 @@
             <tr>
                 <td class="row-label">Free sandbox / test key</td>
                 <td class="yes">Yes — no signup needed (<code>ak_test</code>)</td>
-                <td>Trial account required</td>
-                <td class="warn">Trial account required, 35 lookups/day cap</td>
+                <td class="warn">Trial account required. API access blocked on free trial — requires manual activation by Data8 team via email. Cannot evaluate without contacting support first.</td>
+                <td class="warn">Trial account required. 35 address retrievals/day (each selected address = 1 credit, not each search)</td>
+            </tr>
+            <tr>
+                <td class="row-label">Trial evaluation experience</td>
+                <td class="yes">Excellent — working in under 2 minutes, no friction</td>
+                <td class="warn">Poor — API blocked on trial, must email support and wait for manual activation</td>
+                <td>Fair — quick setup but 35 credit/day cap burns quickly due to two-step API design</td>
             </tr>
         </tbody>
     </table>
@@ -613,8 +620,8 @@
                     <p class="pcard-section">Pros</p>
                     <ul>
                         <li>ISO 27001, global coverage, daily PAF refresh</li>
-                        <li>Single API call — same simple billing model as Ideal Postcodes</li>
-                        <li>Reliable mid-tier option between Ideal Postcodes and Loqate on price</li>
+                        <li>Single API call in production — simple billing model, predictable costs</li>
+                        <li>Mid-tier price between Ideal Postcodes and Loqate</li>
                         <li>Public status page</li>
                     </ul>
                 </div>
@@ -623,7 +630,8 @@
                     <ul>
                         <li>£9,000/yr more expensive than Ideal Postcodes across all platforms</li>
                         <li>Developer support details not clearly published</li>
-                        <li>Trial requires registration — no instant sandbox</li>
+                        <li>Poor trial experience — free trial blocks direct API access entirely, requiring manual activation by their team via email before any evaluation can begin. Neither Ideal Postcodes nor Loqate have this barrier</li>
+                        <li>Contact email on their website (info@data8-8.co.uk) is incorrect — actual address is info@data-8.co.uk</li>
                     </ul>
                 </div>
             </div>
@@ -656,7 +664,9 @@
     </div>
 
     <div class="recommendation">
-        <strong>Recommendation:</strong> Ideal Postcodes is the strongest choice — lowest cost, simplest API, closest to the current implementation, and the only provider with an instant test sandbox. Data8 is a solid fallback if a more established name is preferred. Loqate is premium but its two-step billing model adds integration complexity and makes trial evaluation difficult.
+        <strong>Recommendation:</strong> Ideal Postcodes is the clear front-runner — lowest cost (£21,140/yr across all platforms), simplest single-call API, closest to the current Codeberry implementation requiring least refactoring, and the only provider with an instant no-signup sandbox. It was fully working in under 2 minutes during this evaluation.<br><br>
+        Loqate is the premium option with the strongest global dataset, but its two-step billing model (charged per address retrieved, not per search) adds integration complexity and its trial is limited to 35 credits/day.<br><br>
+        Data8 could not be fully evaluated during this POC — their free trial blocks direct API access and requires manual activation by their support team. This is a significant red flag for developer experience and onboarding speed. Their website also lists an incorrect contact email. Until their trial access is activated, a fair comparison cannot be made.
     </div>
 </div>
 
