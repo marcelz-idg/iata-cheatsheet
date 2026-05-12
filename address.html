@@ -410,7 +410,7 @@
         <label for="data8-postcode">Postcode</label>
         <input type="text" id="data8-postcode" class="postcode-input" placeholder="Enter postcode">
         <p class="hint">Register at <strong>data-8.co.uk</strong> for a free trial key</p>
-        <p class="trial-notice">Trial limitation: Data8 restricts direct API access on free trial accounts — the AddressCapture service returns 403 even with a valid key. API access requires manual activation by their team (email info@data-8.co.uk). In production with a paid account, the raw API works with just the key — no library needed. This is a significant evaluation hurdle compared to Ideal Postcodes and Loqate.</p>
+        <p class="trial-notice">Trial note: Data8 requires manual activation of API access on free trial accounts — email info@data-8.co.uk to request it. Their support responded and activated access same day during this evaluation. In production with a paid account, direct API access is available from the start. Note: the contact email listed on their website (info@data8-8.co.uk) is incorrect.</p>
 
         <div id="data8-results" class="results"></div>
     </div>
@@ -476,7 +476,7 @@
 <!-- Comparison Section -->
 <div class="comparison">
     <h2>Provider Comparison</h2>
-    <p class="comparison-intro">Summary of the three shortlisted providers as replacements for Codeberry (GetAddress.io). All three meet the core requirements: ISO 27001 certified, global address coverage, and Royal Mail PAF as the authoritative data source.</p>
+    <p class="comparison-intro">Summary of the three shortlisted providers evaluated for AGW-10861. All three are actively maintained, well-established in the UK market, ISO 27001 certified, and use Royal Mail PAF as their authoritative data source. All three were fully tested and confirmed working during this evaluation.</p>
 
     <table class="comparison-table">
         <thead>
@@ -549,16 +549,10 @@
                 <td class="warn">Per address retrieved (not per search)</td>
             </tr>
             <tr>
-                <td class="row-label">Integration complexity</td>
-                <td class="yes">Low — single request, straightforward response</td>
-                <td>Medium — similar to Ideal Postcodes</td>
-                <td class="warn">Higher — two-step API, lazy retrieval required to control costs</td>
-            </tr>
-            <tr>
-                <td class="row-label">Similarity to current Codeberry implementation</td>
-                <td class="yes">High — minimal refactoring needed</td>
-                <td>Medium — similar patterns, some refactoring</td>
-                <td>Medium — different API structure</td>
+                <td class="row-label">Implementation complexity</td>
+                <td class="yes">Low — single GET request, straightforward field mapping</td>
+                <td class="yes">Low — single POST request, granular PAF fields returned directly</td>
+                <td class="warn">Higher — two-step API (Find + Retrieve), lazy retrieval pattern required to control costs</td>
             </tr>
             <tr>
                 <td class="row-label">Developer support</td>
@@ -574,15 +568,15 @@
             </tr>
             <tr>
                 <td class="row-label">Free sandbox / test key</td>
-                <td class="yes">Yes — no signup needed (<code>ak_test</code>)</td>
-                <td class="warn">Trial account required. API access blocked on free trial — requires manual activation by Data8 team via email. Cannot evaluate without contacting support first.</td>
-                <td class="warn">Trial account required. 35 address retrievals/day (each selected address = 1 credit, not each search)</td>
+                <td class="yes">Yes — no signup needed (<code>ak_test</code> key, <code>ID1 1QD</code> test postcode)</td>
+                <td class="warn">Free trial account required. Direct API access must be manually activated by their support team — email info@data-8.co.uk. Responded and activated same day.</td>
+                <td class="warn">Free trial account required. 35 address retrievals/day — each address selected costs 1 credit, not each search</td>
             </tr>
             <tr>
                 <td class="row-label">Trial evaluation experience</td>
                 <td class="yes">Excellent — working in under 2 minutes, no friction</td>
-                <td class="warn">Poor — API blocked on trial, must email support and wait for manual activation</td>
-                <td>Fair — quick setup but 35 credit/day cap burns quickly due to two-step API design</td>
+                <td class="warn">Requires contacting support to activate API. Support was responsive (same-day). Once activated, API works well with clean results</td>
+                <td>Good — quick self-serve setup, but 35 credit/day cap limits evaluation depth</td>
             </tr>
         </tbody>
     </table>
@@ -595,19 +589,20 @@
                 <div>
                     <p class="pcard-section">Pros</p>
                     <ul>
-                        <li>Cheapest option across all three platforms</li>
-                        <li>Single API call returns all addresses — simple and predictable billing</li>
-                        <li>Closest to the current Codeberry integration — least refactoring required</li>
-                        <li>Free sandbox with test key, no signup needed</li>
+                        <li>Cheapest option — ~£21,140/yr across all platforms</li>
+                        <li>Single GET call returns the full address list instantly</li>
+                        <li>Simple, predictable billing — charged per postcode lookup</li>
+                        <li>No signup needed to evaluate — free sandbox key (<code>ak_test</code>) built in</li>
+                        <li>Lowest integration complexity — straightforward response, easy field mapping</li>
                         <li>Daily Royal Mail PAF refresh</li>
-                        <li>Live developer chat</li>
+                        <li>Live developer chat support</li>
                     </ul>
                 </div>
                 <div>
                     <p class="pcard-section">Cons</p>
                     <ul>
-                        <li>Smaller company than Loqate — less enterprise track record</li>
-                        <li>No mention of formal SLA uptime guarantee</li>
+                        <li>Smaller, specialist company compared to Data8 and Loqate</li>
+                        <li>No formal published SLA</li>
                     </ul>
                 </div>
             </div>
@@ -619,19 +614,20 @@
                 <div>
                     <p class="pcard-section">Pros</p>
                     <ul>
-                        <li>ISO 27001, global coverage, daily PAF refresh</li>
-                        <li>Single API call in production — simple billing model, predictable costs</li>
-                        <li>Mid-tier price between Ideal Postcodes and Loqate</li>
-                        <li>Public status page</li>
+                        <li>ISO 27001, well-established UK data quality company</li>
+                        <li>Single API call returns full address list — simple billing model</li>
+                        <li>Returns granular PAF fields (building number, name, street components separately) — precise field mapping to form</li>
+                        <li>Broader data services beyond address lookup (phone, email validation)</li>
+                        <li>Support was responsive — activated trial API access same day</li>
                     </ul>
                 </div>
                 <div>
                     <p class="pcard-section">Cons</p>
                     <ul>
-                        <li>£9,000/yr more expensive than Ideal Postcodes across all platforms</li>
-                        <li>Developer support details not clearly published</li>
-                        <li>Poor trial experience — free trial blocks direct API access entirely, requiring manual activation by their team via email before any evaluation can begin. Neither Ideal Postcodes nor Loqate have this barrier</li>
-                        <li>Contact email on their website (info@data8-8.co.uk) is incorrect — actual address is info@data-8.co.uk</li>
+                        <li>~£9,000/yr more expensive than Ideal Postcodes across all platforms</li>
+                        <li>Trial requires manual activation by their support team — not self-serve</li>
+                        <li>Contact email listed on their website (info@data8-8.co.uk) is incorrect — actual address is info@data-8.co.uk</li>
+                        <li>Developer docs less polished than competitors</li>
                     </ul>
                 </div>
             </div>
@@ -643,19 +639,18 @@
                 <div>
                     <p class="pcard-section">Pros</p>
                     <ul>
-                        <li>Industry leader — largest global address dataset</li>
-                        <li>ISO 27001, comprehensive global coverage</li>
-                        <li>Well-documented API with strong enterprise support</li>
-                        <li>Public status page and formal SLA</li>
+                        <li>Industry leader — owned by GBG (FTSE-listed), largest global address dataset</li>
+                        <li>ISO 27001, comprehensive global coverage including international addresses</li>
+                        <li>Well-documented API, strong enterprise support, formal SLA</li>
+                        <li>Trusted by major banks, retailers and airlines worldwide</li>
                     </ul>
                 </div>
                 <div>
                     <p class="pcard-section">Cons</p>
                     <ul>
-                        <li>Two-step API: Find (free) + Retrieve (billed per address selected, not per search) — more complex to integrate correctly and easy to over-consume credits if not implemented carefully</li>
-                        <li>Most expensive option and requires a custom quote</li>
-                        <li>Trial is very limited: 35 address retrievals per day</li>
-                        <li>Pricing less transparent than competitors</li>
+                        <li>Two-step API: Find (free) + Retrieve (billed per address selected) — higher integration complexity, lazy retrieval pattern required to avoid over-spending</li>
+                        <li>Most expensive option — requires a custom quote, less pricing transparency</li>
+                        <li>Trial limited to 35 address retrievals per day — limits evaluation depth</li>
                     </ul>
                 </div>
             </div>
@@ -664,9 +659,10 @@
     </div>
 
     <div class="recommendation">
-        <strong>Recommendation:</strong> Ideal Postcodes is the clear front-runner — lowest cost (£21,140/yr across all platforms), simplest single-call API, closest to the current Codeberry implementation requiring least refactoring, and the only provider with an instant no-signup sandbox. It was fully working in under 2 minutes during this evaluation.<br><br>
-        Loqate is the premium option with the strongest global dataset, but its two-step billing model (charged per address retrieved, not per search) adds integration complexity and its trial is limited to 35 credits/day.<br><br>
-        Data8 could not be fully evaluated during this POC — their free trial blocks direct API access and requires manual activation by their support team. This is a significant red flag for developer experience and onboarding speed. Their website also lists an incorrect contact email. Until their trial access is activated, a fair comparison cannot be made.
+        <strong>Recommendation: Ideal Postcodes</strong><br><br>
+        All three providers were fully tested and confirmed working during this evaluation. Based on the findings, <strong>Ideal Postcodes</strong> is the recommended choice. It is the cheapest option (~£21,140/yr across AGW, VGW and IDG2.0), has the simplest integration (single GET call, straightforward field mapping), and is the only provider with a zero-friction sandbox — no signup or manual activation required. It was working in under 2 minutes.<br><br>
+        <strong>Data8</strong> is a solid alternative with a clean single-call API and granular PAF field responses. It is ~£9,000/yr more expensive than Ideal Postcodes and the trial experience requires contacting their support team for manual activation — though they responded same day. Worth considering if the wider Data8 data quality services (phone, email validation) are of interest.<br><br>
+        <strong>Loqate</strong> is the enterprise-grade option backed by GBG (FTSE-listed) with the strongest global dataset and formal SLA. However, it has the most complex API (two-step Find + Retrieve pattern), the highest cost (custom quote required), and the most restrictive trial (35 retrievals/day). Best suited if international address coverage or a large enterprise contract is a priority.
     </div>
 </div>
 
