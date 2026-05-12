@@ -831,20 +831,23 @@
                     }
 
                     const items = results.map(r => {
-                        const raw        = r.RawAddress || {};
+                        const raw         = r.RawAddress || {};
                         const subBuilding = raw.SubBuildingName || '';
-                        const building   = [raw.BuildingName, raw.BuildingNumber].filter(Boolean).join(' ');
-                        const buildingId = [subBuilding, building].filter(Boolean).join(', ') || '';
-                        const street     = raw.ThoroughfareName || raw.DependentThoroughfareName || '';
+                        const buildingNum = raw.BuildingNumber ? String(raw.BuildingNumber) : '';
+                        const building    = [raw.BuildingName, buildingNum].filter(Boolean).join(' ');
+                        const buildingId  = [subBuilding, building].filter(Boolean).join(', ') || '';
+                        const street      = [raw.ThoroughfareName, raw.ThoroughfareDesc, raw.DependentThoroughfareName].filter(Boolean).join(' ');
+                        const city        = raw.Locality || raw.PostTown || '';
+                        const county      = raw.TraditionalCounty || raw.AdministrativeCounty || '';
 
                         return {
                             line1: [buildingId, street].filter(Boolean).join(', '),
-                            line2: [raw.PostTown, raw.County, raw.Postcode].filter(Boolean).join(', '),
+                            line2: [city, county, raw.Postcode].filter(Boolean).join(', '),
                             address: {
                                 tx_address_1: buildingId,
                                 tx_address_2: street,
-                                tx_city:      raw.PostTown || '',
-                                tx_county:    raw.County   || '',
+                                tx_city:      city,
+                                tx_county:    county,
                                 tx_postcode:  raw.Postcode || '',
                                 id_country:   'GB',
                             }
