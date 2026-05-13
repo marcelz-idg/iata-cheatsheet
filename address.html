@@ -456,7 +456,8 @@
         </div>
         <label for="ideal-typeahead">Start typing an address</label>
         <input type="text" id="ideal-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Uses <code>/autocomplete/addresses?context=GBR</code> — one country at a time, passed as <code>context</code> query param. Fires after 300ms; resolve on click is billed. Sandbox key (ak_test) not supported here.</p>
+        <p class="hint">Uses <code>/autocomplete/addresses?context=GBR</code> — one country at a time, passed as <code>context</code> query param. Fires after 300ms; resolve on click is billed.</p>
+        <p class="trial-notice">Trial finding: the free sandbox key (<code>ak_test</code>) only covers the postcode lookup endpoint — the autocomplete endpoint requires a real paid key. This is the only provider where type-ahead cannot be evaluated without purchasing a key first.</p>
         <div id="ideal-ta-results" class="results"></div>
     </div>
 
@@ -1177,7 +1178,7 @@
             const res = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/Search.json', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ key, country, search: text })
+                body: JSON.stringify({ username: 'apikey-' + key, password: '', country, search: text })
             });
             const data = await res.json();
 
@@ -1212,7 +1213,7 @@
                         const ddRes = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/DrillDown.json', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ key, country, id: item.Id })
+                            body: JSON.stringify({ username: 'apikey-' + key, password: '', country, id: item.Id })
                         });
                         const ddData = await ddRes.json();
                         if (!ddData.Status || !ddData.Status.Success) {
@@ -1229,7 +1230,7 @@
                         const rRes = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/Retrieve.json', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ key, country, id: item.Id })
+                            body: JSON.stringify({ username: 'apikey-' + key, password: '', country, id: item.Id })
                         });
                         const rData = await rRes.json();
                         if (!rData.Status || !rData.Status.Success) {
