@@ -503,9 +503,13 @@
         <div id="loqate-results" class="results"></div>
 
         <div class="section-divider">Type-ahead</div>
+        <div class="country-toggle">
+            <button id="loqate-ta-country-gb" class="active" onclick="setCountry('loqate','GBR')">GB</button>
+            <button id="loqate-ta-country-us" onclick="setCountry('loqate','USA')">US</button>
+        </div>
         <label for="loqate-typeahead">Start typing an address</label>
         <input type="text" id="loqate-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Searches GB &amp; US simultaneously — <code>Countries=GBR,USA</code> (ISO 3166-1 alpha-3) comma-separated in one query param. Press Enter to search; Retrieve (billed) only triggers on click.</p>
+        <p class="hint">Toggle country above for demo. In production, <code>Countries</code> accepts comma-separated ISO alpha-3 codes e.g. <code>GBR,USA</code> — but combining countries pollutes results when the same address text exists in both. Press Enter to search; Retrieve (billed) only triggers on click.</p>
         <div id="loqate-ta-results" class="results"></div>
     </div>
 
@@ -1077,15 +1081,13 @@
 
     // ─── Country toggle state ─────────────────────────────────────────────────
 
-    const taCountry = { ideal: 'GBR', data8: 'GB' };
+    const taCountry = { ideal: 'GBR', data8: 'GB', loqate: 'GBR' };
 
     function setCountry(provider, country) {
         taCountry[provider] = country;
-        const isIdeal = provider === 'ideal';
-        const codes   = isIdeal ? ['GBR', 'USA'] : ['GB', 'US'];
-        codes.forEach(c => {
-            const btn = document.getElementById(provider + '-ta-country-' + c.slice(0,2).toLowerCase());
-            if (btn) btn.classList.toggle('active', c === country);
+        ['gb', 'us'].forEach(c => {
+            const btn = document.getElementById(provider + '-ta-country-' + c);
+            if (btn) btn.classList.toggle('active', country.toLowerCase().startsWith(c));
         });
     }
 
@@ -1311,7 +1313,7 @@
 
     wireTypeahead('ideal-typeahead',  'ideal-key',  searchIdealTypeahead,  'ideal-ta-results');
     wireTypeahead('data8-typeahead',  'data8-key',  searchData8Typeahead,  'data8-ta-results');
-    wireTypeahead('loqate-typeahead', 'loqate-key', (text, key) => searchLoqate(text, key, 'loqate-ta-results', 'USA'), 'loqate-ta-results');
+    wireTypeahead('loqate-typeahead', 'loqate-key', (text, key) => searchLoqate(text, key, 'loqate-ta-results', taCountry.loqate), 'loqate-ta-results');
 </script>
 
 </body>
