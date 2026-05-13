@@ -121,6 +121,31 @@
             font-size: 14px;
         }
 
+        .country-toggle {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+
+        .country-toggle button {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            background: #f4f5f7;
+            color: #5e6c84;
+            cursor: pointer;
+            transition: background 0.1s, color 0.1s, border-color 0.1s;
+        }
+
+        .country-toggle button.active {
+            background: #0052cc;
+            color: #fff;
+            border-color: #0052cc;
+        }
+
         .results {
             margin-top: 10px;
             border: 1px solid #dfe1e6;
@@ -414,9 +439,13 @@
         <div id="ideal-results" class="results"></div>
 
         <div class="section-divider">Type-ahead</div>
+        <div class="country-toggle">
+            <button id="ideal-ta-country-gb" class="active" onclick="setCountry('ideal','GBR')">GB</button>
+            <button id="ideal-ta-country-us" onclick="setCountry('ideal','USA')">US</button>
+        </div>
         <label for="ideal-typeahead">Start typing an address</label>
         <input type="text" id="ideal-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Uses <code>/autocomplete/addresses</code> endpoint — fires after 300ms. Click a result to fill the form (resolve step is billed).</p>
+        <p class="hint">Uses <code>/autocomplete/addresses?context=GBR</code> — one country at a time, passed as <code>context</code> query param. Fires after 300ms; resolve on click is billed. Sandbox key (ak_test) not supported here.</p>
         <div id="ideal-ta-results" class="results"></div>
     </div>
 
@@ -436,9 +465,13 @@
         <div id="data8-results" class="results"></div>
 
         <div class="section-divider">Type-ahead</div>
+        <div class="country-toggle">
+            <button id="data8-ta-country-gb" class="active" onclick="setCountry('data8','GB')">GB</button>
+            <button id="data8-ta-country-us" onclick="setCountry('data8','US')">US</button>
+        </div>
         <label for="data8-typeahead">Start typing an address</label>
         <input type="text" id="data8-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Uses the <code>PredictiveAddress</code> service (separate from AddressCapture above) — fires after 300ms. Click a result to fill the form.</p>
+        <p class="hint">Uses <code>PredictiveAddress</code> service (POST) — one country at a time, passed as <code>country</code> in the JSON body. Fires after 300ms; retrieve on click is billed.</p>
         <div id="data8-ta-results" class="results"></div>
     </div>
 
@@ -460,7 +493,7 @@
         <div class="section-divider">Type-ahead</div>
         <label for="loqate-typeahead">Start typing an address</label>
         <input type="text" id="loqate-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Uses the same Find API as postcode lookup — fires after 300ms. Find is free; Retrieve (billed) only triggers on click.</p>
+        <p class="hint">Searches GB &amp; US simultaneously — <code>Countries=GB,US</code> comma-separated in one query param. Find is free; Retrieve (billed) only triggers on click.</p>
         <div id="loqate-ta-results" class="results"></div>
     </div>
 
@@ -619,9 +652,9 @@
             </tr>
             <tr>
                 <td class="row-label">Country required upfront?</td>
-                <td class="warn">Yes — <code>context=GBR</code> is the default. Autocomplete endpoint currently only supports GBR and USA</td>
-                <td class="warn">Yes — ISO-2 country code required in every API request. JS library layer optionally auto-detects via IP geolocation</td>
-                <td class="yes">Optional — <code>Countries=GB</code> filters results but can be omitted to search globally. Most flexible of the three</td>
+                <td class="warn">Yes — one country at a time via <code>context=GBR</code> query param. Autocomplete endpoint currently only supports GBR and USA</td>
+                <td class="warn">Yes — one country at a time via <code>country</code> field in the POST JSON body. Supports 250+ countries</td>
+                <td class="yes">Optional and multi-country — pass a comma-separated list e.g. <code>Countries=GB,US</code> in one request to search both simultaneously. Most flexible of the three</td>
             </tr>
             <tr>
                 <td class="row-label">Excluded countries</td>
@@ -631,9 +664,9 @@
             </tr>
             <tr>
                 <td class="row-label">Type-ahead / autocomplete</td>
-                <td>Yes — <code>/autocomplete/addresses</code> endpoint. Two-step: find list (free) + resolve on click (billed). Fuzzy matching, sub-100ms</td>
-                <td>Yes — <code>PredictiveAddress</code> service. Three-step: Search → DrillDown (if container) → Retrieve on click (billed). Different endpoint from AddressCapture</td>
-                <td class="yes">Yes — existing Find API is already type-ahead capable. No extra API needed; just fire on keyup. Simplest upgrade path of the three</td>
+                <td>Yes — <code>/autocomplete/addresses?context=GBR</code>. Two-step: find list (free) + resolve on click (billed). Country switched via <code>context</code> query param (GBR or USA). Sandbox key not supported</td>
+                <td>Yes — <code>PredictiveAddress</code> POST endpoint. Three-step: Search → DrillDown (if container) → Retrieve on click (billed). Country passed as <code>country</code> field in JSON body</td>
+                <td class="yes">Yes — existing Find API is type-ahead capable. Country filter is a comma-separated <code>Countries</code> query param — pass <code>GB,US</code> to search both in one call. Simplest multi-country approach</td>
             </tr>
             <tr>
                 <td class="row-label">Service hosting / region</td>
@@ -937,15 +970,15 @@
     // Trial: register at loqate.com for free credits
     // Two-step: Find (free, returns list) → Retrieve (costs 1 credit, only on click)
 
-    async function searchLoqate(text, key, resultsId = 'loqate-results') {
+    async function searchLoqate(text, key, resultsId = 'loqate-results', countries = 'GB') {
         showLoading(resultsId);
 
         const loqateFind = (searchText, containerId) => {
             let url = 'https://api.addressy.com/Capture/Interactive/Find/v1.10/json3.ws'
                     + '?Key=' + encodeURIComponent(key)
                     + '&Text=' + encodeURIComponent(searchText)
-                    + '&Countries=GB'
                     + '&Limit=100';
+            if (countries) url += '&Countries=' + encodeURIComponent(countries);
             if (containerId) url += '&Container=' + encodeURIComponent(containerId);
             return fetch(url).then(r => r.json());
         };
@@ -1029,14 +1062,38 @@
         }
     }
 
+    // ─── Country toggle state ─────────────────────────────────────────────────
+
+    const taCountry = { ideal: 'GBR', data8: 'GB' };
+
+    function setCountry(provider, country) {
+        taCountry[provider] = country;
+        const isIdeal = provider === 'ideal';
+        const codes   = isIdeal ? ['GBR', 'USA'] : ['GB', 'US'];
+        codes.forEach(c => {
+            const btn = document.getElementById(provider + '-ta-country-' + c.slice(0,2).toLowerCase());
+            if (btn) btn.classList.toggle('active', c === country);
+        });
+    }
+
     // ─── Ideal Postcodes type-ahead ──────────────────────────────────────────
 
     async function searchIdealTypeahead(text, key) {
         showLoading('ideal-ta-results');
+
+        // The sandbox key (ak_test) only covers the postcode lookup endpoint.
+        // The /autocomplete/addresses endpoint requires a real paid key.
+        if (key === 'ak_test') {
+            showError('ideal-ta-results', 'The sandbox key (ak_test) does not cover the autocomplete endpoint. A real Ideal Postcodes API key is required to test type-ahead.');
+            return;
+        }
+
+        const context = taCountry.ideal || 'GBR';
         try {
             const res = await fetch('https://api.ideal-postcodes.co.uk/autocomplete/addresses'
                 + '?api_key=' + encodeURIComponent(key)
-                + '&q=' + encodeURIComponent(text));
+                + '&q=' + encodeURIComponent(text)
+                + '&context=' + encodeURIComponent(context));
             const data = await res.json();
 
             if (data.code !== 2000) {
@@ -1104,11 +1161,13 @@
 
     async function searchData8Typeahead(text, key) {
         showLoading('data8-ta-results');
+        const country = taCountry.data8 || 'GB';
         try {
-            const res = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/Search.json'
-                + '?key=' + encodeURIComponent(key)
-                + '&country=GB'
-                + '&search=' + encodeURIComponent(text));
+            const res = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/Search.json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key, country, search: text })
+            });
             const data = await res.json();
 
             if (!data.Status || !data.Status.Success) {
@@ -1119,13 +1178,13 @@
             const results = data.Results || [];
             if (!results.length) { showError('data8-ta-results', 'No results found.'); return; }
 
-            renderData8TAResults(results, key);
+            renderData8TAResults(results, key, country);
         } catch (e) {
             showError('data8-ta-results', 'Network error: ' + e.message);
         }
     }
 
-    function renderData8TAResults(results, key) {
+    function renderData8TAResults(results, key, country) {
         const container = document.getElementById('data8-ta-results');
         container.innerHTML = '<div class="results-header">' + results.length + ' result' + (results.length !== 1 ? 's' : '') + '</div>';
 
@@ -1139,26 +1198,28 @@
                 if (item.IsContainer) {
                     div.textContent = 'Loading…';
                     try {
-                        const ddRes = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/DrillDown.json'
-                            + '?key=' + encodeURIComponent(key)
-                            + '&country=GB'
-                            + '&id=' + encodeURIComponent(item.Id));
+                        const ddRes = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/DrillDown.json', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ key, country, id: item.Id })
+                        });
                         const ddData = await ddRes.json();
                         if (!ddData.Status || !ddData.Status.Success) {
                             div.textContent = (ddData.Status && ddData.Status.ErrorMessage) || 'DrillDown failed';
                             return;
                         }
-                        renderData8TAResults(ddData.Results || [], key);
+                        renderData8TAResults(ddData.Results || [], key, country);
                     } catch (e) {
                         div.textContent = 'Error: ' + e.message;
                     }
                 } else {
                     div.textContent = 'Loading…';
                     try {
-                        const rRes = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/Retrieve.json'
-                            + '?key=' + encodeURIComponent(key)
-                            + '&country=GB'
-                            + '&id=' + encodeURIComponent(item.Id));
+                        const rRes = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/Retrieve.json', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ key, country, id: item.Id })
+                        });
                         const rData = await rRes.json();
                         if (!rData.Status || !rData.Status.Success) {
                             div.textContent = (rData.Status && rData.Status.ErrorMessage) || 'Retrieve failed';
@@ -1254,7 +1315,7 @@
 
     wireTypeahead('ideal-typeahead',  'ideal-key',  searchIdealTypeahead,  'ideal-ta-results');
     wireTypeahead('data8-typeahead',  'data8-key',  searchData8Typeahead,  'data8-ta-results');
-    wireTypeahead('loqate-typeahead', 'loqate-key', (text, key) => searchLoqate(text, key, 'loqate-ta-results'), 'loqate-ta-results');
+    wireTypeahead('loqate-typeahead', 'loqate-key', (text, key) => searchLoqate(text, key, 'loqate-ta-results', 'GB,US'), 'loqate-ta-results');
 </script>
 
 </body>
