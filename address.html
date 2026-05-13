@@ -505,7 +505,7 @@
         <div class="section-divider">Type-ahead</div>
         <label for="loqate-typeahead">Start typing an address</label>
         <input type="text" id="loqate-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Searches GB &amp; US simultaneously — <code>Countries=GB,US</code> comma-separated in one query param. Press Enter to search; Retrieve (billed) only triggers on click.</p>
+        <p class="hint">Searches GB &amp; US simultaneously — <code>Countries=GBR,USA</code> (ISO 3166-1 alpha-3) comma-separated in one query param. Press Enter to search; Retrieve (billed) only triggers on click.</p>
         <div id="loqate-ta-results" class="results"></div>
     </div>
 
@@ -660,13 +660,13 @@
                 <td class="row-label">Global address coverage</td>
                 <td class="yes">243+ countries. Autocomplete endpoint works with free <code>ak_test</code> sandbox key — no paid key required to evaluate. GBR and USA contexts supported via <code>context</code> param. <a href="https://ideal-postcodes.co.uk/global-addressing" target="_blank">View coverage page ↗</a></td>
                 <td class="warn">250+ countries via PredictiveAddress service. <strong>Cannot be demoed on trial</strong> — PredictiveAddress requires separate manual activation by Data8 support (different from AddressCapture). "250+ countries" stated in docs only; no public country list to verify. <a href="https://docs.data-8.co.uk/web-services/predictiveaddress" target="_blank">PredictiveAddress docs ↗</a></td>
-                <td class="warn">249+ countries in docs. <strong>Cannot be demoed on trial</strong> — free trial only includes UK data. International data requires a paid plan. API technically supports <code>Countries=GB,US</code> in one call but returns UK-only results on trial. <a href="https://support.loqate.com/coverage-full/" target="_blank">View coverage by country ↗</a></td>
+                <td class="yes">249+ countries — trial covers all countries by default. Pass ISO 3166-1 alpha-3 codes e.g. <code>Countries=GBR,USA</code>. Note: using alpha-2 codes (GB, US) silently returns wrong results. <a href="https://support.loqate.com/coverage-full/" target="_blank">View coverage by country ↗</a></td>
             </tr>
             <tr>
                 <td class="row-label">Country required upfront?</td>
                 <td class="warn">Yes — one country at a time via <code>context=GBR</code> query param. Autocomplete endpoint currently only supports GBR and USA</td>
                 <td class="warn">Yes — one country at a time via <code>country</code> field in the POST JSON body. Supports 250+ countries</td>
-                <td class="yes">Optional and multi-country — pass a comma-separated list e.g. <code>Countries=GB,US</code> in one request to search both simultaneously. Most flexible of the three</td>
+                <td class="yes">Optional and multi-country — pass comma-separated ISO 3166-1 alpha-3 codes e.g. <code>Countries=GBR,USA</code> in one request to search both simultaneously. Most flexible of the three</td>
             </tr>
             <tr>
                 <td class="row-label">Excluded countries</td>
@@ -678,7 +678,7 @@
                 <td class="row-label">Type-ahead / autocomplete</td>
                 <td class="yes">Yes — <code>/v1/autocomplete/addresses?context=GBR</code>. Works with <code>ak_test</code> sandbox key. Two-step: find list (free) + resolve on click (billed). Country via <code>context</code> param (GBR or USA)</td>
                 <td class="warn">Yes (API exists) — <code>PredictiveAddress</code> POST endpoint. <strong>Cannot be demoed on trial</strong> — requires PredictiveAddress to be manually activated by Data8 support. Country passed as <code>country</code> in JSON body</td>
-                <td class="yes">Yes — existing Find API is type-ahead capable (UK only on trial). Country filter via comma-separated <code>Countries</code> param. <strong>UK type-ahead works on trial</strong>; global requires paid plan</td>
+                <td class="yes">Yes — existing Find API is type-ahead capable. Pass <code>Countries=GBR,USA</code> (ISO alpha-3 required) to search both in one call. Trial covers all 249+ countries</td>
             </tr>
             <tr>
                 <td class="row-label">Service hosting / region</td>
@@ -780,7 +780,7 @@
     <div class="recommendation">
         <strong>Recommendation: Ideal Postcodes (UK-only) / Loqate (if global search required)</strong><br><br>
         All three providers were fully tested for UK address lookup and confirmed working. For a <strong>UK-only</strong> deployment, <strong>Ideal Postcodes</strong> remains the recommended choice — cheapest (~£21,140/yr across AGW, VGW and IDG2.0), simplest single-call integration, zero-friction sandbox, and all data in UK/EU data centres.<br><br>
-        <strong>On global search:</strong> Ideal Postcodes is the standout here — the free <code>ak_test</code> sandbox key works with the autocomplete endpoint for both GBR and USA, making it the only provider where global type-ahead can be fully evaluated without any cost. Data8 global search requires PredictiveAddress to be manually activated by their support team. Loqate's trial is UK-only — international data requires a paid plan. For global search evaluation right now, Ideal Postcodes is the only provider that can be tested for free.<br><br>
+        <strong>On global search:</strong> Both Ideal Postcodes and Loqate can demo global search on their free trials. Ideal Postcodes uses <code>context=GBR</code> or <code>context=USA</code> (one at a time). Loqate accepts comma-separated ISO alpha-3 codes (<code>Countries=GBR,USA</code>) to search multiple countries in one call — note alpha-2 codes (GB, US) silently return wrong results. Data8 global search requires PredictiveAddress to be manually activated by their support team before it can be evaluated.<br><br>
         <strong>Data8</strong> is a solid alternative for UK lookup with a clean single-call API and granular PAF field responses. ~£9,000/yr more expensive than Ideal Postcodes. Global search uses a separate PredictiveAddress service — two endpoints to integrate. Worth considering if the broader Data8 data quality services (phone, email validation) are in scope.<br><br>
         <strong>Loqate</strong> is the enterprise-grade option backed by GBG (FTSE-listed) with the largest global dataset and a formal SLA. It has the most flexible multi-country API (comma-separated <code>Countries</code> param, no country required upfront), making it the strongest candidate for global use cases once a paid plan is in place. However it has the most complex billing model and highest cost.
     </div>
@@ -1311,7 +1311,7 @@
 
     wireTypeahead('ideal-typeahead',  'ideal-key',  searchIdealTypeahead,  'ideal-ta-results');
     wireTypeahead('data8-typeahead',  'data8-key',  searchData8Typeahead,  'data8-ta-results');
-    wireTypeahead('loqate-typeahead', 'loqate-key', (text, key) => searchLoqate(text, key, 'loqate-ta-results', 'GB,US'), 'loqate-ta-results');
+    wireTypeahead('loqate-typeahead', 'loqate-key', (text, key) => searchLoqate(text, key, 'loqate-ta-results', 'GBR,USA'), 'loqate-ta-results');
 </script>
 
 </body>
