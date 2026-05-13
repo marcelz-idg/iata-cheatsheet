@@ -336,6 +336,17 @@
         .comparison-table td.yes  { color: #006644; }
         .comparison-table td.warn { color: #974f0c; }
 
+        .comparison-table td a {
+            display: inline-block;
+            margin-top: 4px;
+            font-size: 11px;
+            color: #0052cc;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .comparison-table td a:hover { text-decoration: underline; }
+
         .comparison-table code {
             background: #f4f5f7;
             padding: 1px 5px;
@@ -646,9 +657,9 @@
             </tr>
             <tr>
                 <td class="row-label">Global address coverage</td>
-                <td>243+ countries — premium sub-building accuracy in ~12 countries (UK, US, Canada, Ireland, AU etc.); basic locality-level elsewhere via HERE data</td>
-                <td>250+ countries via PredictiveAddress service. Note: AddressCapture (used above) is UK-only PAF. Global search requires switching to PredictiveAddress endpoint</td>
-                <td class="yes">249+ countries — rooftop-level accuracy in 120+ countries. Largest global dataset of the three</td>
+                <td>243+ countries — premium sub-building accuracy in ~12 countries (UK, US, Canada, Ireland, AU etc.); basic locality-level elsewhere via HERE data. <a href="https://ideal-postcodes.co.uk/global-addressing" target="_blank">View coverage page ↗</a></td>
+                <td>250+ countries via PredictiveAddress service. Note: AddressCapture (used above) is UK-only PAF. Global search requires switching to PredictiveAddress endpoint. <a href="https://docs.data-8.co.uk/web-services/predictiveaddress/getsupportedcountriesadvanced" target="_blank">Supported countries API ↗</a></td>
+                <td class="yes">249+ countries — rooftop-level accuracy in 120+ countries. Largest global dataset of the three. <a href="https://support.loqate.com/coverage-full/" target="_blank">View coverage by country ↗</a></td>
             </tr>
             <tr>
                 <td class="row-label">Country required upfront?</td>
@@ -670,9 +681,9 @@
             </tr>
             <tr>
                 <td class="row-label">Service hosting / region</td>
-                <td class="yes">UK and EU data centres only. Migrated away from US servers in Dec 2020 after EU-US Privacy Shield invalidation. All processing stays in UK/EU</td>
-                <td>Microsoft Azure — 8 regions: UK South, US East, Canada, Germany, Switzerland, Australia, Brazil, Singapore. UK South available for data residency</td>
-                <td>Hybrid physical + cloud, multiple global locations with automatic routing to nearest DC. Specific cloud provider and regions not publicly disclosed — contact GBG for details</td>
+                <td class="yes">UK and EU data centres only. Migrated away from US servers in Dec 2020 after EU-US Privacy Shield invalidation. All processing stays in UK/EU. <a href="https://blog.ideal-postcodes.co.uk/blog/2021-05-27-data-processing-gdpr" target="_blank">Read announcement ↗</a></td>
+                <td>Microsoft Azure — 8 regions: UK South, US East, Canada, Germany, Switzerland, Australia, Brazil, Singapore. UK South available for data residency. <a href="https://status.data-8.co.uk/" target="_blank">Status page ↗</a></td>
+                <td>Hybrid physical + cloud, multiple global locations with automatic routing to nearest DC. Specific cloud provider and regions not publicly disclosed — contact GBG for details. <a href="https://www.loqate.com/en-gb/our-platform/" target="_blank">Platform overview ↗</a></td>
             </tr>
         </tbody>
     </table>
