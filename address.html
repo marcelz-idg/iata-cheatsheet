@@ -991,7 +991,7 @@
                     + '?Key=' + encodeURIComponent(key)
                     + '&Text=' + encodeURIComponent(searchText)
                     + '&Limit=100';
-            if (countries) url += '&Countries=' + encodeURIComponent(countries);
+            if (countries) url += '&Countries=' + countries.split(',').map(encodeURIComponent).join(',');
             if (containerId) url += '&Container=' + encodeURIComponent(containerId);
             return fetch(url).then(r => r.json());
         };
