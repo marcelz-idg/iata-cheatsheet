@@ -456,7 +456,7 @@
         </div>
         <label for="ideal-typeahead">Start typing an address</label>
         <input type="text" id="ideal-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Uses <code>/autocomplete/addresses?context=GBR</code> — one country at a time via the <code>context</code> param. Press Enter to search; resolve on click is billed.</p>
+        <p class="hint">Uses <code>/v1/autocomplete/addresses?context=GBR</code> — one country at a time via the <code>context</code> param. Press Enter to search; resolve on click is billed.</p>
         <p class="trial-notice">Trial finding: the free sandbox key (<code>ak_test</code>) only covers the postcode lookup endpoint — the autocomplete endpoint requires a real paid key. Swap the key above to test with a live account.</p>
         <div id="ideal-ta-results" class="results"></div>
     </div>
@@ -1096,7 +1096,7 @@
         showLoading('ideal-ta-results');
         const context = taCountry.ideal || 'GBR';
         try {
-            const res = await fetch('https://api.ideal-postcodes.co.uk/autocomplete/addresses'
+            const res = await fetch('https://api.ideal-postcodes.co.uk/v1/autocomplete/addresses'
                 + '?api_key=' + encodeURIComponent(key)
                 + '&q=' + encodeURIComponent(text)
                 + '&context=' + encodeURIComponent(context));
@@ -1124,7 +1124,7 @@
                         // Resolve using udprn or umprn — this step is billed
                         const idType = hit.udprn ? 'udprns' : 'umprns';
                         const id = hit.udprn || hit.umprn;
-                        const resolveRes = await fetch('https://api.ideal-postcodes.co.uk/v1/' + idType + '/' + id
+                        const resolveRes = await fetch('https://api.ideal-postcodes.co.uk/v1/autocomplete/addresses/' + encodeURIComponent(id) + '/' + context.toLowerCase()
                             + '?api_key=' + encodeURIComponent(key));
                         const resolveData = await resolveRes.json();
 
