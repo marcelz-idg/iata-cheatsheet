@@ -658,9 +658,9 @@
             </tr>
             <tr>
                 <td class="row-label">Global address coverage</td>
-                <td>243+ countries — premium sub-building accuracy in ~12 countries (UK, US, Canada, Ireland, AU etc.); basic locality-level elsewhere via HERE data. <a href="https://ideal-postcodes.co.uk/global-addressing" target="_blank">View coverage page ↗</a></td>
-                <td>250+ countries via PredictiveAddress service. Note: AddressCapture (used above) is UK-only PAF. Global search requires switching to PredictiveAddress endpoint. <a href="https://docs.data-8.co.uk/web-services/predictiveaddress/getsupportedcountriesadvanced" target="_blank">Supported countries API ↗</a></td>
-                <td class="yes">249+ countries — rooftop-level accuracy in 120+ countries. Largest global dataset of the three. <a href="https://support.loqate.com/coverage-full/" target="_blank">View coverage by country ↗</a></td>
+                <td class="warn">243+ countries claimed — but global type-ahead (autocomplete endpoint) requires a <strong>paid key to evaluate</strong>. The free sandbox key (ak_test) only covers UK postcode lookup. Cannot be fully tested at trial stage. <a href="https://ideal-postcodes.co.uk/global-addressing" target="_blank">View coverage page ↗</a></td>
+                <td>250+ countries via PredictiveAddress service. AddressCapture (used for UK postcode lookup) is UK-only. No public country list — "250+ countries" stated in docs only; full list requires an API call. <a href="https://docs.data-8.co.uk/web-services/predictiveaddress" target="_blank">PredictiveAddress docs ↗</a></td>
+                <td class="yes">249+ countries — rooftop-level accuracy in 120+ countries. Largest global dataset of the three. Public country list available. <a href="https://support.loqate.com/coverage-full/" target="_blank">View coverage by country ↗</a></td>
             </tr>
             <tr>
                 <td class="row-label">Country required upfront?</td>
@@ -713,7 +713,8 @@
                     <ul>
                         <li>Smaller, specialist company compared to Data8 and Loqate</li>
                         <li>No formal published SLA</li>
-                        <li>Global autocomplete limited to GBR and USA contexts currently</li>
+                        <li>Global type-ahead (autocomplete endpoint) requires a paid key — cannot be evaluated on the free sandbox. Only provider where global search cannot be trialled for free</li>
+                        <li>Autocomplete currently limited to GBR and USA contexts</li>
                     </ul>
                 </div>
             </div>
@@ -740,6 +741,7 @@
                         <li>~£9,000/yr more expensive than Ideal Postcodes across all platforms</li>
                         <li>Trial requires manual activation by their support team — not self-serve</li>
                         <li>Global search requires a different endpoint (PredictiveAddress) from UK postcode lookup (AddressCapture) — two separate services to integrate</li>
+                        <li>No public country coverage page — supported countries only discoverable via API call, unlike Ideal Postcodes and Loqate who both have public lists</li>
                         <li>Contact email listed on their website (info@data8-8.co.uk) is incorrect — actual address is info@data-8.co.uk</li>
                         <li>Developer docs less polished than competitors</li>
                     </ul>
@@ -777,8 +779,8 @@
     </div>
 
     <div class="recommendation">
-        <strong>Recommendation: Ideal Postcodes</strong><br><br>
-        All three providers were fully tested and confirmed working during this evaluation. Based on the findings, <strong>Ideal Postcodes</strong> is the recommended choice. It is the cheapest option (~£21,140/yr across AGW, VGW and IDG2.0), has the simplest integration (single GET call, straightforward field mapping), and is the only provider with a zero-friction sandbox — no signup or manual activation required. For type-ahead, it provides a dedicated <code>/autocomplete/addresses</code> endpoint with fuzzy matching. All data stays in UK/EU data centres, making it the strongest option for data residency compliance. It was working in under 2 minutes.<br><br>
+        <strong>Recommendation: Ideal Postcodes (UK-only) / Loqate (if global search required)</strong><br><br>
+        All three providers were fully tested and confirmed working during this evaluation. For a <strong>UK-only</strong> deployment, <strong>Ideal Postcodes</strong> remains the recommended choice — cheapest (~£21,140/yr across AGW, VGW and IDG2.0), simplest integration, zero-friction sandbox, and all data in UK/EU data centres. However, if <strong>global address search is a requirement</strong>, Ideal Postcodes has a significant limitation: the global type-ahead endpoint requires a paid key to evaluate — it cannot be trialled for free. This makes it impossible to validate global search quality before committing. Loqate should be the preferred choice for global use cases.<br><br>
         <strong>Data8</strong> is a solid alternative with a clean single-call API and granular PAF field responses. It is ~£9,000/yr more expensive than Ideal Postcodes. For type-ahead and global search it uses a separate <code>PredictiveAddress</code> service — meaning two different endpoints to integrate vs one for Ideal Postcodes. Multi-region Azure hosting with UK South available. Worth considering if the wider Data8 data quality services (phone, email validation) are already in scope.<br><br>
         <strong>Loqate</strong> is the enterprise-grade option backed by GBG (FTSE-listed) with the largest global dataset (249+ countries) and a formal SLA. Notably, it has the simplest type-ahead upgrade path — the existing Find API already works as autocomplete with no additional endpoint. However, it has the most complex billing model (two-step Find + Retrieve, billed per address selected), the highest cost (custom quote required), the most restrictive trial (35 retrievals/day), and hosting details are not publicly disclosed. Best suited if international coverage, a formal SLA, or an existing GBG relationship is a priority.<br><br>
         <strong>On global search:</strong> All three support 240+ countries, but country must be specified upfront for Ideal Postcodes and Data8. Loqate is the most flexible — the Countries parameter is optional, letting it search globally without pre-selecting a country. Loqate's Russia data is also not being updated (supplier decision post-Ukraine invasion).
