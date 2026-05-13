@@ -430,7 +430,7 @@
 
 <header>
     <h1>Address Lookup POC</h1>
-    <p>AGW-10861 — Replacement evaluation &bull; Type a postcode and press Enter to search, then click an address to fill the form.</p>
+    <p>AGW-10861 — Replacement evaluation &bull; Press Enter in any input to search, then click an address to fill the form.</p>
 </header>
 
 <div class="providers">
@@ -456,8 +456,8 @@
         </div>
         <label for="ideal-typeahead">Start typing an address</label>
         <input type="text" id="ideal-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Uses <code>/autocomplete/addresses?context=GBR</code> — one country at a time, passed as <code>context</code> query param. Fires after 300ms; resolve on click is billed.</p>
-        <p class="trial-notice">Trial finding: the free sandbox key (<code>ak_test</code>) only covers the postcode lookup endpoint — the autocomplete endpoint requires a real paid key. This is the only provider where type-ahead cannot be evaluated without purchasing a key first.</p>
+        <p class="hint">Uses <code>/autocomplete/addresses?context=GBR</code> — one country at a time via the <code>context</code> param. Press Enter to search; resolve on click is billed.</p>
+        <p class="trial-notice">Trial finding: the free sandbox key (<code>ak_test</code>) only covers the postcode lookup endpoint — the autocomplete endpoint requires a real paid key. Swap the key above to test with a live account.</p>
         <div id="ideal-ta-results" class="results"></div>
     </div>
 
@@ -483,7 +483,7 @@
         </div>
         <label for="data8-typeahead">Start typing an address</label>
         <input type="text" id="data8-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Uses <code>PredictiveAddress</code> service (POST) — one country at a time, passed as <code>country</code> in the JSON body. Fires after 300ms; retrieve on click is billed.</p>
+        <p class="hint">Uses <code>PredictiveAddress</code> service (POST) — one country at a time, passed as <code>country</code> in the JSON body. Press Enter to search; retrieve on click is billed.</p>
         <div id="data8-ta-results" class="results"></div>
     </div>
 
@@ -505,7 +505,7 @@
         <div class="section-divider">Type-ahead</div>
         <label for="loqate-typeahead">Start typing an address</label>
         <input type="text" id="loqate-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Searches GB &amp; US simultaneously — <code>Countries=GB,US</code> comma-separated in one query param. Find is free; Retrieve (billed) only triggers on click.</p>
+        <p class="hint">Searches GB &amp; US simultaneously — <code>Countries=GB,US</code> comma-separated in one query param. Press Enter to search; Retrieve (billed) only triggers on click.</p>
         <div id="loqate-ta-results" class="results"></div>
     </div>
 
@@ -1092,14 +1092,6 @@
 
     async function searchIdealTypeahead(text, key) {
         showLoading('ideal-ta-results');
-
-        // The sandbox key (ak_test) only covers the postcode lookup endpoint.
-        // The /autocomplete/addresses endpoint requires a real paid key.
-        if (key === 'ak_test') {
-            showError('ideal-ta-results', 'The sandbox key (ak_test) does not cover the autocomplete endpoint. A real Ideal Postcodes API key is required to test type-ahead.');
-            return;
-        }
-
         const context = taCountry.ideal || 'GBR';
         try {
             const res = await fetch('https://api.ideal-postcodes.co.uk/autocomplete/addresses'
@@ -1263,11 +1255,6 @@
 
     // ─── Event wiring ────────────────────────────────────────────────────────
 
-    function debounce(fn, ms) {
-        let timer;
-        return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
-    }
-
     function wireProvider(postcodeId, keyId, searchFn, resultsId) {
         const postcodeInput = document.getElementById(postcodeId);
         const keyInput = document.getElementById(keyId);
@@ -1300,17 +1287,13 @@
         const input = document.getElementById(inputId);
         const keyInput = document.getElementById(keyId);
 
-        const doSearch = debounce((text, key) => {
-            if (text.length < 3) return;
-            searchFn(text, key);
-        }, 300);
-
-        input.addEventListener('input', () => {
+        input.addEventListener('keydown', e => {
+            if (e.key !== 'Enter') return;
             const text = input.value.trim();
             const key  = keyInput.value.trim();
+            if (!text) return;
             if (!key) { showError(resultsId, 'Please enter an API key above.'); return; }
-            if (!text) { document.getElementById(resultsId).classList.remove('visible'); return; }
-            doSearch(text, key);
+            searchFn(text, key);
         });
 
         document.addEventListener('click', e => {
