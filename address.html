@@ -477,13 +477,9 @@
         <div id="data8-results" class="results"></div>
 
         <div class="section-divider">Type-ahead</div>
-        <div class="country-toggle">
-            <button id="data8-ta-country-gb" class="active" onclick="setCountry('data8','GB')">GB</button>
-            <button id="data8-ta-country-us" onclick="setCountry('data8','US')">US</button>
-        </div>
         <label for="data8-typeahead">Start typing an address</label>
         <input type="text" id="data8-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Uses Data8's <code>PredictiveAddress</code> JS library — type to search, click a result to fill the form. Toggle country above before typing.</p>
+        <p class="hint">Uses Data8's <code>PredictiveAddress</code> JS library — type to search, click a result to fill the form. Country selector is provided by the library itself.</p>
         <div id="data8-ta-results" class="results"></div>
     </div>
 
@@ -1081,7 +1077,7 @@
 
     // ─── Country toggle state ─────────────────────────────────────────────────
 
-    const taCountry = { ideal: 'GBR', data8: 'GB', loqate: 'GBR' };
+    const taCountry = { ideal: 'GBR', loqate: 'GBR' };
 
     function setCountry(provider, country) {
         taCountry[provider] = country;
@@ -1174,37 +1170,32 @@
         if (!window.data8 || !data8.predictiveaddressui) return;
 
         const input = document.getElementById('data8-typeahead');
-        const country = taCountry.data8 || 'GB';
 
-        // Destroy previous instance if key or country changed
         if (paInstance && paInstance.destroy) paInstance.destroy();
 
         paInstance = new data8.predictiveaddressui(input, {
             ajaxKey: key,
-            country: country,
-            fields: [
-                { element: 'tx_address_1', field: 'line1' },
-                { element: 'tx_address_2', field: 'line2' },
-                { element: 'tx_city',      field: 'town'  },
-                { element: 'tx_county',    field: 'county' },
-                { element: 'tx_postcode',  field: 'postcode' },
-            ]
-        });
+            initialCountry: 'GB',
+            selectAddress: function(address) {
+                const raw = address.RawAddress || {};
+                const buildingNum  = raw.BuildingNumber ? String(raw.BuildingNumber) : '';
+                const buildingName = raw.BuildingName || '';
+                const subBuilding  = raw.SubBuildingName || '';
+                const buildingId   = [subBuilding, [buildingName, buildingNum].filter(Boolean).join(' ')].filter(Boolean).join(', ')
+                                     || address.building || '';
+                const street       = [raw.ThoroughfareName, raw.ThoroughfareDesc, raw.DependentThoroughfareName].filter(Boolean).join(' ')
+                                     || address.line1 || '';
 
-        // When library fills the postcode field, update our badge
-        document.getElementById('tx_postcode').addEventListener('change', () => {
-            const badge = document.getElementById('filled-by');
-            if (badge) {
-                badge.textContent = 'Data8';
-                badge.style.background = '#e3f2fd';
-                badge.style.color = '#0d47a1';
-                badge.style.display = 'inline-block';
+                fillForm({
+                    tx_address_1: buildingId,
+                    tx_address_2: street,
+                    tx_city:      raw.Locality || raw.PostTown || address.town || '',
+                    tx_county:    raw.TraditionalCounty || raw.AdministrativeCounty || address.county || '',
+                    tx_postcode:  raw.Postcode || address.postcode || '',
+                    id_country:   (raw.Location && raw.Location.Country) || address.country || 'GB',
+                }, 'data8');
             }
-            ['tx_address_1','tx_address_2','tx_city','tx_county','tx_postcode'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.toggle('filled', !!el.value);
-            });
-        }, { once: false });
+        });
     }
 
     function loadPredictiveAddressScript(key) {
@@ -1302,13 +1293,6 @@
 
     // Data8 type-ahead uses their JS library — init on page load
     setupData8Typeahead();
-
-    // Re-init library when country toggle changes
-    const origSetCountry = setCountry;
-    window.setCountry = function(provider, country) {
-        origSetCountry(provider, country);
-        if (provider === 'data8') setupData8Typeahead();
-    };
 </script>
 
 </body>
