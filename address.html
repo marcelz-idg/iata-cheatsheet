@@ -483,7 +483,7 @@
         </div>
         <label for="data8-typeahead">Start typing an address</label>
         <input type="text" id="data8-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
-        <p class="hint">Uses <code>PredictiveAddress</code> service (POST) — one country at a time, passed as <code>country</code> in the JSON body. Press Enter to search; retrieve on click is billed.</p>
+        <p class="hint">Uses Data8's <code>PredictiveAddress</code> JS library — type to search, click a result to fill the form. Toggle country above before typing.</p>
         <div id="data8-ta-results" class="results"></div>
     </div>
 
@@ -1164,96 +1164,82 @@
         }
     }
 
-    // ─── Data8 type-ahead (PredictiveAddress) ────────────────────────────────
+    // ─── Data8 type-ahead (PredictiveAddress JS library) ─────────────────────
+    // Direct REST calls return 403 on trial — Data8 requires their JS library
+    // for browser-based type-ahead, same pattern as AddressCapture above.
 
-    async function searchData8Typeahead(text, key) {
-        showLoading('data8-ta-results');
+    let paInstance = null;
+
+    function initData8PredictiveAddress(key) {
+        if (!window.data8 || !data8.predictiveaddressui) return;
+
+        const input = document.getElementById('data8-typeahead');
         const country = taCountry.data8 || 'GB';
-        try {
-            const res = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/Search.json', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ key, country, search: text })
-            });
-            const data = await res.json();
 
-            if (!data.Status || !data.Status.Success) {
-                showError('data8-ta-results', (data.Status && data.Status.ErrorMessage) || 'Lookup failed');
-                return;
-            }
+        // Destroy previous instance if key or country changed
+        if (paInstance && paInstance.destroy) paInstance.destroy();
 
-            const results = data.Results || [];
-            if (!results.length) { showError('data8-ta-results', 'No results found.'); return; }
-
-            renderData8TAResults(results, key, country);
-        } catch (e) {
-            showError('data8-ta-results', 'Network error: ' + e.message);
-        }
-    }
-
-    function renderData8TAResults(results, key, country) {
-        const container = document.getElementById('data8-ta-results');
-        container.innerHTML = '<div class="results-header">' + results.length + ' result' + (results.length !== 1 ? 's' : '') + '</div>';
-
-        results.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'result-item';
-            div.innerHTML = '<div class="line1">' + escHtml(item.Address) + '</div>'
-                          + (item.IsContainer ? '<div class="line2" style="color:#97a0af">Click to expand</div>' : '');
-
-            div.addEventListener('click', async () => {
-                if (item.IsContainer) {
-                    div.textContent = 'Loading…';
-                    try {
-                        const ddRes = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/DrillDown.json', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ key, country, id: item.Id })
-                        });
-                        const ddData = await ddRes.json();
-                        if (!ddData.Status || !ddData.Status.Success) {
-                            div.textContent = (ddData.Status && ddData.Status.ErrorMessage) || 'DrillDown failed';
-                            return;
-                        }
-                        renderData8TAResults(ddData.Results || [], key, country);
-                    } catch (e) {
-                        div.textContent = 'Error: ' + e.message;
-                    }
-                } else {
-                    div.textContent = 'Loading…';
-                    try {
-                        const rRes = await fetch('https://webservices.data-8.co.uk/PredictiveAddress/Retrieve.json', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ key, country, id: item.Id })
-                        });
-                        const rData = await rRes.json();
-                        if (!rData.Status || !rData.Status.Success) {
-                            div.textContent = (rData.Status && rData.Status.ErrorMessage) || 'Retrieve failed';
-                            return;
-                        }
-
-                        const r = rData.Address || {};
-                        fillForm({
-                            tx_address_1: r.Premises || r.Company || '',
-                            tx_address_2: r.Street || '',
-                            tx_city:      r.Town || r.Locality || '',
-                            tx_county:    r.County || '',
-                            tx_postcode:  r.Postcode || '',
-                            id_country:   'GB',
-                        }, 'data8');
-
-                        container.classList.remove('visible');
-                    } catch (e) {
-                        div.textContent = 'Error: ' + e.message;
-                    }
-                }
-            });
-
-            container.appendChild(div);
+        paInstance = new data8.predictiveaddressui(input, {
+            ajaxKey: key,
+            country: country,
+            fields: [
+                { element: 'tx_address_1', field: 'line1' },
+                { element: 'tx_address_2', field: 'line2' },
+                { element: 'tx_city',      field: 'town'  },
+                { element: 'tx_county',    field: 'county' },
+                { element: 'tx_postcode',  field: 'postcode' },
+            ]
         });
 
-        container.classList.add('visible');
+        // When library fills the postcode field, update our badge
+        document.getElementById('tx_postcode').addEventListener('change', () => {
+            const badge = document.getElementById('filled-by');
+            if (badge) {
+                badge.textContent = 'Data8';
+                badge.style.background = '#e3f2fd';
+                badge.style.color = '#0d47a1';
+                badge.style.display = 'inline-block';
+            }
+            ['tx_address_1','tx_address_2','tx_city','tx_county','tx_postcode'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.toggle('filled', !!el.value);
+            });
+        }, { once: false });
+    }
+
+    function loadPredictiveAddressScript(key) {
+        return new Promise((resolve, reject) => {
+            if (window.data8 && data8.predictiveaddressui) { resolve(); return; }
+
+            if (!document.getElementById('data8-pa-css')) {
+                const link = document.createElement('link');
+                link.id = 'data8-pa-css';
+                link.rel = 'stylesheet';
+                link.href = 'https://webservices.data-8.co.uk/content/predictiveaddress.css';
+                document.head.appendChild(link);
+            }
+
+            const old = document.getElementById('data8-pa-script');
+            if (old) old.remove();
+
+            const script = document.createElement('script');
+            script.id  = 'data8-pa-script';
+            script.src = 'https://webservices.data-8.co.uk/javascript/predictiveaddress.js';
+            script.onload = () => { resolve(); };
+            script.onerror = () => reject(new Error('Failed to load PredictiveAddress library'));
+            document.head.appendChild(script);
+        });
+    }
+
+    async function setupData8Typeahead() {
+        const key = document.getElementById('data8-key').value.trim();
+        if (!key) return;
+        try {
+            await loadPredictiveAddressScript(key);
+            initData8PredictiveAddress(key);
+        } catch (e) {
+            showError('data8-ta-results', e.message);
+        }
     }
 
     // ─── Event wiring ────────────────────────────────────────────────────────
@@ -1312,8 +1298,17 @@
     wireProvider('loqate-postcode', 'loqate-key', (text, key) => searchLoqate(text, key, 'loqate-results'), 'loqate-results');
 
     wireTypeahead('ideal-typeahead',  'ideal-key',  searchIdealTypeahead,  'ideal-ta-results');
-    wireTypeahead('data8-typeahead',  'data8-key',  searchData8Typeahead,  'data8-ta-results');
     wireTypeahead('loqate-typeahead', 'loqate-key', (text, key) => searchLoqate(text, key, 'loqate-ta-results', taCountry.loqate), 'loqate-ta-results');
+
+    // Data8 type-ahead uses their JS library — init on page load
+    setupData8Typeahead();
+
+    // Re-init library when country toggle changes
+    const origSetCountry = setCountry;
+    window.setCountry = function(provider, country) {
+        origSetCountry(provider, country);
+        if (provider === 'data8') setupData8Typeahead();
+    };
 </script>
 
 </body>
