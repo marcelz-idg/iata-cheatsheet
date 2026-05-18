@@ -567,6 +567,12 @@
         </thead>
         <tbody>
             <tr>
+                <td class="row-label">Price per lookup / address</td>
+                <td>2.8p–4.5p per lookup — same credit covers postcode lookup and type-ahead resolve. No distinction between lookup types. <a href="https://ideal-postcodes.co.uk/pricing" target="_blank">View pricing ↗</a></td>
+                <td class="warn">4.0p–6.0p per lookup (Postal Address Validation). Per-address pricing for AddressCapture and PredictiveAddress not separately published — contact Data8 for a quote. <a href="https://www.data-8.co.uk/pricing/" target="_blank">View pricing ↗</a></td>
+                <td>4.0p–6.9p per address <em>selected</em> (not per search). Charged only on Retrieve. Highest public tier (£1,000 prepaid) = 4.0p. <a href="https://www.loqate.com/en-gb/pricing/" target="_blank">View pricing ↗</a></td>
+            </tr>
+            <tr>
                 <td class="row-label">Annual cost (AGW ~500k/yr)</td>
                 <td>£14,000</td>
                 <td>£20,000</td>
@@ -677,7 +683,7 @@
             <tr>
                 <td class="row-label">Type-ahead / autocomplete</td>
                 <td class="yes">Yes — <code>/v1/autocomplete/addresses?context=GBR</code>. Works with <code>ak_test</code> sandbox key. Two-step: find list (free) + resolve on click (billed). Country via <code>context</code> param (GBR or USA)</td>
-                <td class="warn">Yes (API exists) — <code>PredictiveAddress</code> POST endpoint. <strong>Cannot be demoed on trial</strong> — requires PredictiveAddress to be manually activated by Data8 support. Country passed as <code>country</code> in JSON body</td>
+                <td class="yes">Yes — implemented via Data8's official <code>PredictiveAddress</code> JS library (same pattern as AddressCapture). Requires PredictiveAddress to be manually activated by Data8 support — activated same day during this evaluation. Country selector provided by the library itself. Search and DrillDown steps are free; Retrieve (address selection) is billed.</td>
                 <td class="yes">Yes — existing Find API is type-ahead capable. Pass <code>Countries=GBR,USA</code> (ISO alpha-3 required) to search both in one call. Trial covers all 249+ countries</td>
             </tr>
             <tr>
