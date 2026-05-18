@@ -1142,19 +1142,38 @@
                         }
 
                         const r = resolveData.result;
-                        const subBuilding = [r.sub_building_name, r.sub_building_number].filter(Boolean).join(' ');
-                        const building    = [r.building_name, r.building_number].filter(Boolean).join(' ');
-                        const buildingId  = [subBuilding, building].filter(Boolean).join(', ') || r.premise || r.line_1 || '';
-                        const street      = r.thoroughfare || r.dependant_thoroughfare || '';
-
-                        fillForm({
-                            tx_address_1: buildingId,
-                            tx_address_2: street,
-                            tx_city:      r.post_town || '',
-                            tx_county:    r.county || '',
-                            tx_postcode:  r.postcode || '',
-                            id_country:   r.country || 'GB',
-                        }, 'ideal');
+                        let mapped;
+                        if (r.primary_number !== undefined) {
+                            // USPS / international response structure
+                            const streetParts = [
+                                r.street_pre_directional_abbreviation,
+                                r.street_name,
+                                r.street_suffix_abbreviation,
+                                r.street_post_directional_abbreviation,
+                            ].filter(Boolean);
+                            mapped = {
+                                tx_address_1: r.primary_number || '',
+                                tx_address_2: streetParts.join(' '),
+                                tx_city:      r.preferred_city || r.city || '',
+                                tx_county:    r.state_abbreviation || r.state || '',
+                                tx_postcode:  r.zip_plus_4_code || r.zip_code || '',
+                                id_country:   r.country_iso_2 || r.country || '',
+                            };
+                        } else {
+                            // UK PAF response structure
+                            const subBuilding = [r.sub_building_name, r.sub_building_number].filter(Boolean).join(' ');
+                            const building    = [r.building_name, r.building_number].filter(Boolean).join(' ');
+                            const buildingId  = [subBuilding, building].filter(Boolean).join(', ') || r.premise || r.line_1 || '';
+                            mapped = {
+                                tx_address_1: buildingId,
+                                tx_address_2: r.thoroughfare || r.dependant_thoroughfare || '',
+                                tx_city:      r.post_town || '',
+                                tx_county:    r.county || '',
+                                tx_postcode:  r.postcode || '',
+                                id_country:   r.country || 'GB',
+                            };
+                        }
+                        fillForm(mapped, 'ideal');
 
                         container.classList.remove('visible');
                     } catch (e) {
