@@ -486,7 +486,7 @@
     <!-- Loqate -->
     <div class="provider" id="provider-loqate">
         <h2>Loqate</h2>
-        <p class="provider-meta">ISO 27001 &bull; Global &bull; Quote required</p>
+        <p class="provider-meta">ISO 27001 &bull; Global &bull; ~£30,200/yr</p>
 
         <label for="loqate-key">API Key</label>
         <input type="text" id="loqate-key" value="TN17-AC74-UH76-BC31" placeholder="Paste trial key from loqate.com">
@@ -570,25 +570,25 @@
                 <td class="row-label">Annual cost (AGW ~500k/yr)</td>
                 <td>£14,000</td>
                 <td>£20,000</td>
-                <td>Quote required (~£20,000+)</td>
+                <td>£20,000</td>
             </tr>
             <tr>
                 <td class="row-label">Annual cost (VGW ~200k/yr)</td>
                 <td>£5,600</td>
                 <td>£8,000</td>
-                <td>Quote required (~£8,000+)</td>
+                <td>£8,000</td>
             </tr>
             <tr>
                 <td class="row-label">Annual cost (IDG2 ~55k/yr)</td>
                 <td>£1,540</td>
                 <td>£2,200</td>
-                <td>Quote required (~£2,200+)</td>
+                <td>£2,200</td>
             </tr>
             <tr>
                 <td class="row-label">Total (all platforms)</td>
                 <td><strong>~£21,140</strong></td>
                 <td><strong>~£30,200</strong></td>
-                <td><strong>Quote required</strong></td>
+                <td><strong>~£30,200</strong></td>
             </tr>
             <tr>
                 <td class="row-label">ISO 27001</td>
@@ -681,6 +681,12 @@
                 <td class="yes">Yes — existing Find API is type-ahead capable. Pass <code>Countries=GBR,USA</code> (ISO alpha-3 required) to search both in one call. Trial covers all 249+ countries</td>
             </tr>
             <tr>
+                <td class="row-label">Type-ahead billing model</td>
+                <td class="yes">Search (autocomplete) is <strong>free</strong> — billed only when user selects an address (1 credit). Credits are never consumed while typing.</td>
+                <td class="yes">Search and DrillDown steps are <strong>free</strong> — billed only when user selects an address via Retrieve (1 PredictiveAddress credit). Note: a non-zero credit balance must exist for Search/DrillDown to function even though they don't spend credits. Eircode addresses cost 3 credits.</td>
+                <td class="yes">Find (type-ahead search) is <strong>free</strong> — billed only when user selects an address via Retrieve (1 credit). Loqate's own docs state: "Find is the free part of a lookup… Retrieve is a charged request, this is the full address returned when an address is selected."</td>
+            </tr>
+            <tr>
                 <td class="row-label">Service hosting / region</td>
                 <td class="yes">UK and EU data centres only. Migrated away from US servers in Dec 2020 after EU-US Privacy Shield invalidation. All processing stays in UK/EU. <a href="https://blog.ideal-postcodes.co.uk/blog/2021-05-27-data-processing-gdpr" target="_blank">Read announcement ↗</a></td>
                 <td>Microsoft Azure — 8 regions: UK South, US East, Canada, Germany, Switzerland, Australia, Brazil, Singapore. UK South available for data residency. <a href="https://status.data-8.co.uk/" target="_blank">Status page ↗</a></td>
@@ -766,7 +772,7 @@
                     <p class="pcard-section">Cons</p>
                     <ul>
                         <li>Two-step API: Find (free) + Retrieve (billed per address selected) — higher integration complexity, lazy retrieval pattern required to avoid over-spending</li>
-                        <li>Most expensive option — requires a custom quote, less pricing transparency</li>
+                        <li>Same cost as Data8 at enterprise tier (~£30,200/yr across all platforms at 4p/address) — requires a custom quote, less pricing transparency than competitors</li>
                         <li>Trial limited to 35 address retrievals per day — limits evaluation depth</li>
                         <li>Hosting infrastructure details not publicly disclosed — specific cloud regions/providers require contacting GBG directly</li>
                         <li>Russia excluded — address data not updated since Ukraine invasion</li>
@@ -782,7 +788,7 @@
         All three providers were fully tested for UK address lookup and confirmed working. For a <strong>UK-only</strong> deployment, <strong>Ideal Postcodes</strong> remains the recommended choice — cheapest (~£21,140/yr across AGW, VGW and IDG2.0), simplest single-call integration, zero-friction sandbox, and all data in UK/EU data centres.<br><br>
         <strong>On global search:</strong> Both Ideal Postcodes and Loqate can demo global search on their free trials. Ideal Postcodes uses <code>context=GBR</code> or <code>context=USA</code> (one at a time). Loqate accepts comma-separated ISO alpha-3 codes (<code>Countries=GBR,USA</code>) to search multiple countries in one call — note alpha-2 codes (GB, US) silently return wrong results. Data8 global search requires PredictiveAddress to be manually activated by their support team before it can be evaluated.<br><br>
         <strong>Data8</strong> is a solid alternative for UK lookup with a clean single-call API and granular PAF field responses. ~£9,000/yr more expensive than Ideal Postcodes. Global search uses a separate PredictiveAddress service — two endpoints to integrate. Worth considering if the broader Data8 data quality services (phone, email validation) are in scope.<br><br>
-        <strong>Loqate</strong> is the enterprise-grade option backed by GBG (FTSE-listed) with the largest global dataset and a formal SLA. It has the most flexible multi-country API (comma-separated <code>Countries</code> param, no country required upfront), making it the strongest candidate for global use cases once a paid plan is in place. However it has the most complex billing model and highest cost.
+        <strong>Loqate</strong> is the enterprise-grade option backed by GBG (FTSE-listed) with the largest global dataset and a formal SLA. It has the most flexible multi-country API (comma-separated <code>Countries</code> param, no country required upfront), making it the strongest candidate for global use cases once a paid plan is in place. At the enterprise highest tier (4p/address), Loqate comes out at ~£30,200/yr across all platforms — the same as Data8. However it has the most complex billing model and the two-step Find + Retrieve API requires a lazy retrieval pattern to control costs.
     </div>
 </div>
 
@@ -1118,9 +1124,8 @@
                 div.addEventListener('click', async () => {
                     div.textContent = 'Loading…';
                     try {
-                        // Resolve using udprn or umprn — this step is billed
-                        const idType = hit.udprn ? 'udprns' : 'umprns';
-                        const id = hit.udprn || hit.umprn;
+                        // Resolve using udprn (UK), umprn (UK multi-occupancy) or id (international/USA) — this step is billed
+                        const id = hit.udprn || hit.umprn || hit.id;
                         const resolveRes = await fetch('https://api.ideal-postcodes.co.uk/v1/autocomplete/addresses/' + encodeURIComponent(id) + '/' + context.toLowerCase()
                             + '?api_key=' + encodeURIComponent(key));
                         const resolveData = await resolveRes.json();
