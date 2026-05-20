@@ -1130,10 +1130,17 @@
                 div.addEventListener('click', async () => {
                     div.textContent = 'Loading…';
                     try {
-                        // Resolve using udprn (UK), umprn (UK multi-occupancy) or id (international/USA) — this step is billed
-                        const id = hit.udprn || hit.umprn || hit.id;
-                        const resolveRes = await fetch('https://api.ideal-postcodes.co.uk/v1/autocomplete/addresses/' + encodeURIComponent(id) + '/' + context.toLowerCase()
-                            + '?api_key=' + encodeURIComponent(key));
+                        // UK addresses resolve via /v1/udprns/{udprn} or /v1/umprns/{umprn}
+                        // International addresses resolve via /v1/autocomplete/addresses/{id}/{context}
+                        let resolveUrl;
+                        if (hit.udprn) {
+                            resolveUrl = 'https://api.ideal-postcodes.co.uk/v1/udprns/' + encodeURIComponent(hit.udprn) + '?api_key=' + encodeURIComponent(key);
+                        } else if (hit.umprn) {
+                            resolveUrl = 'https://api.ideal-postcodes.co.uk/v1/umprns/' + encodeURIComponent(hit.umprn) + '?api_key=' + encodeURIComponent(key);
+                        } else {
+                            resolveUrl = 'https://api.ideal-postcodes.co.uk/v1/autocomplete/addresses/' + encodeURIComponent(hit.id) + '/' + context.toLowerCase() + '?api_key=' + encodeURIComponent(key);
+                        }
+                        const resolveRes = await fetch(resolveUrl);
                         const resolveData = await resolveRes.json();
 
                         if (resolveData.code !== 2000) {
