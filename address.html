@@ -457,7 +457,7 @@
         <label for="ideal-typeahead">Start typing an address</label>
         <input type="text" id="ideal-typeahead" class="typeahead-input" placeholder="e.g. 10 Downing Street">
         <p class="hint">Uses <code>/v1/autocomplete/addresses?context=GBR</code> — one country at a time via the <code>context</code> param. Press Enter to search; resolve on click is billed.</p>
-        <p class="hint">Use <strong>ID1 1QD</strong> or any partial address with key <strong>ak_test</strong> — sandbox key works here too.</p>
+        <p class="hint"><strong>GB:</strong> use <strong>ID1 1QD</strong> — <code>ak_test</code> can only resolve sandbox UDPRNs, so real addresses like "10 Downing Street" will fail at the resolve step. <strong>US:</strong> any US address works (e.g. "1600 Pennsylvania").</p>
         <div id="ideal-ta-results" class="results"></div>
     </div>
 
